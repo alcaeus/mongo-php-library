@@ -1,0 +1,16 @@
+---
+stages:
+  - name: match
+    args:
+      - name: matchExpr
+        type: resolvesToMatchExpression
+
+  - name: sort
+    args:
+      - name: sortSpecificataion
+        type: resolvesToSortSpecification
+
+  - name: limit
+    args:
+      - name: limit
+        type: int
