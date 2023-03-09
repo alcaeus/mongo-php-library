@@ -2,8 +2,7 @@
 
 namespace MongoDB\Tests\Aggregation\Converter\PipelineOperator;
 
-use Generator;
-use MongoDB\Aggregation\Converter\PipelineOperator\Eq as EqConverter;
+use MongoDB\Aggregation\Converter\PipelineOperator\EqConverter;
 use MongoDB\Aggregation\PipelineOperator\Eq;
 use PHPUnit\Framework\TestCase;
 

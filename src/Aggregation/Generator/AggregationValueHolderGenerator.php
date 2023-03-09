@@ -22,7 +22,7 @@ final class AggregationValueHolderGenerator extends AbstractGenerator
 {
     public function createClassForObject(object $object, bool $overwrite = false): void
     {
-        $className = $object->className ?? ucfirst($object->name);
+        $className = ucfirst($object->name) . $this->classNameSuffix;
         $fileName = $className . '.php';
 
         if (file_exists($this->filePath . $fileName) && !$overwrite) {

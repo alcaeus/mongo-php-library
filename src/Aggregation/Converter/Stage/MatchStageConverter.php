@@ -3,25 +3,25 @@
 namespace MongoDB\Aggregation\Converter\Stage;
 
 use MongoDB\Aggregation\Converter\AbstractConverter;
-use MongoDB\Aggregation\Stage\Limit as LimitStage;
+use MongoDB\Aggregation\Stage\MatchStage;
 
-final class Limit extends AbstractConverter
+final class MatchStageConverter extends AbstractConverter
 {
     /**
      * @param mixed $value
      */
     public function supports($value): bool
     {
-        return $value instanceof LimitStage;
+        return $value instanceof MatchStage;
     }
 
     /**
-     * @param LimitStage $value
+     * @param MatchStage $value
      */
     public function convert($value): object
     {
         return (object) [
-            '$limit' => $this->encodeWithLibraryIfSupported($value->getLimit()),
+            '$match' => (object) $this->encodeWithLibraryIfSupported($value->getMatchExpr()),
         ];
     }
 }

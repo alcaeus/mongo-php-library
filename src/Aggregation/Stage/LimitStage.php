@@ -2,7 +2,7 @@
 
 namespace MongoDB\Aggregation\Stage;
 
-final class Limit implements \MongoDB\Aggregation\Stage
+final class LimitStage implements \MongoDB\Aggregation\Stage
 {
     /**
      * @var int $limit

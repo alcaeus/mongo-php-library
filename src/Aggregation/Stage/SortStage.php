@@ -2,7 +2,7 @@
 
 namespace MongoDB\Aggregation\Stage;
 
-final class Sort implements \MongoDB\Aggregation\Stage
+final class SortStage implements \MongoDB\Aggregation\Stage
 {
     /**
      * @var \MongoDB\Aggregation\Expression\ResolvesToSortSpecification|array|object

@@ -3,20 +3,20 @@
 namespace MongoDB\Aggregation\Converter\PipelineOperator;
 
 use MongoDB\Aggregation\Converter\AbstractConverter;
-use MongoDB\Aggregation\PipelineOperator\Eq as EqOperator;
+use MongoDB\Aggregation\PipelineOperator\Eq;
 
-final class Eq extends AbstractConverter
+final class EqConverter extends AbstractConverter
 {
     /**
      * @param mixed $value
      */
     public function supports($value): bool
     {
-        return $value instanceof EqOperator;
+        return $value instanceof Eq;
     }
 
     /**
-     * @param EqOperator $value
+     * @param Eq $value
      */
     public function convert($value): object
     {

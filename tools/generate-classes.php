@@ -20,6 +20,7 @@ $configs = [
             'namespace' => Stage::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Stage/',
             'interfaces' => [Stage::class],
+            'classNameSuffix' => 'Stage',
         ],
         [
             'configFile' => __DIR__ . '/../src/Aggregation/config/stages.yaml',
@@ -27,6 +28,7 @@ $configs = [
             'namespace' => StageConverter::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Converter/Stage/',
             'parentClass' => AbstractConverter::class,
+            'classNameSuffix' => 'StageConverter',
         ],
     ],
     'pipeline-operators' => [
@@ -43,6 +45,7 @@ $configs = [
             'namespace' => PipelineOperatorConverter::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Converter/PipelineOperator/',
             'parentClass' => AbstractConverter::class,
+            'classNameSuffix' => 'Converter',
         ],
     ],
 ];
@@ -62,7 +65,8 @@ foreach ($generators as $generatorConfig) {
         $generatorConfig['filePath'],
         $generatorConfig['namespace'],
         $generatorConfig['parentClass'] ?? null,
-        $generatorConfig['interfaces'] ?? []
+        $generatorConfig['interfaces'] ?? [],
+        $generatorConfig['classNameSuffix'] ?? '',
     );
     $generator->createClassesForObjects($objects, $generatorConfig['overwrite'] ?? false);
 }

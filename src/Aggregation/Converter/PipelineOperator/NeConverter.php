@@ -3,20 +3,20 @@
 namespace MongoDB\Aggregation\Converter\PipelineOperator;
 
 use MongoDB\Aggregation\Converter\AbstractConverter;
-use MongoDB\Aggregation\PipelineOperator\Ne as NeOperator;
+use MongoDB\Aggregation\PipelineOperator\Ne;
 
-final class Ne extends AbstractConverter
+final class NeConverter extends AbstractConverter
 {
     /**
      * @param mixed $value
      */
     public function supports($value): bool
     {
-        return $value instanceof NeOperator;
+        return $value instanceof Ne;
     }
 
     /**
-     * @param NeOperator $value
+     * @param Ne $value
      */
     public function convert($value): object
     {

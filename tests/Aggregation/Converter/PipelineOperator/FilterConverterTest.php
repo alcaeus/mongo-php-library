@@ -3,8 +3,8 @@
 namespace MongoDB\Tests\Aggregation\Converter\PipelineOperator;
 
 use Generator;
-use MongoDB\Aggregation\Converter\PipelineOperator\Eq as EqConverter;
-use MongoDB\Aggregation\Converter\PipelineOperator\Filter as FilterConverter;
+use MongoDB\Aggregation\Converter\PipelineOperator\EqConverter;
+use MongoDB\Aggregation\Converter\PipelineOperator\FilterConverter;
 use MongoDB\Aggregation\PipelineOperator\Eq;
 use MongoDB\Aggregation\PipelineOperator\Filter;
 use MongoDB\Codec\CodecLibrary;

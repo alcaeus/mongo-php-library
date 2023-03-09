@@ -2,8 +2,7 @@
 
 namespace MongoDB\Tests\Aggregation\Converter\PipelineOperator;
 
-use Generator;
-use MongoDB\Aggregation\Converter\PipelineOperator\Ne as NeConverter;
+use MongoDB\Aggregation\Converter\PipelineOperator\NeConverter;
 use MongoDB\Aggregation\PipelineOperator\Ne;
 use PHPUnit\Framework\TestCase;
 

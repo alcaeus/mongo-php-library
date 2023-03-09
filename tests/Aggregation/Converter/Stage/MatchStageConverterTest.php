@@ -3,17 +3,17 @@
 namespace MongoDB\Tests\Aggregation\Converter\Stage;
 
 use Generator;
-use MongoDB\Aggregation\Converter\Stage\MatchStage as MatchConverter;
+use MongoDB\Aggregation\Converter\Stage\MatchStageConverter;
 use MongoDB\Aggregation\Stage\MatchStage;
 use PHPUnit\Framework\TestCase;
 
-class MatchConverterTest extends TestCase
+class MatchStageConverterTest extends TestCase
 {
     /** @dataProvider provideMatchExpressions */
     public function testConvert($matchExpr)
     {
         $stage = new MatchStage($matchExpr);
-        $converter = new MatchConverter();
+        $converter = new MatchStageConverter();
 
         $this->assertEquals(
             (object) ['$match' => (object) ['foo' => 'bar']],
@@ -29,7 +29,7 @@ class MatchConverterTest extends TestCase
 
     public function testSupports()
     {
-        $converter = new MatchConverter();
+        $converter = new MatchStageConverter();
 
         $this->assertTrue($converter->supports(new MatchStage(['foo' => 'bar'])));
         $this->assertFalse($converter->supports('foo'));

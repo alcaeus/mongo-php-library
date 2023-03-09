@@ -3,22 +3,22 @@
 namespace MongoDB\Aggregation\Converter\PipelineOperator;
 
 use MongoDB\Aggregation\Converter\AbstractConverter;
-use MongoDB\Aggregation\PipelineOperator\Filter as FilterOperator;
+use MongoDB\Aggregation\PipelineOperator\Filter;
 
 use function array_filter;
 
-final class Filter extends AbstractConverter
+final class FilterConverter extends AbstractConverter
 {
     /**
      * @param mixed $value
      */
     public function supports($value): bool
     {
-        return $value instanceof FilterOperator;
+        return $value instanceof Filter;
     }
 
     /**
-     * @param FilterOperator $value
+     * @param Filter $value
      */
     public function convert($value): object
     {

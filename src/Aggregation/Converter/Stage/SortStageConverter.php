@@ -3,9 +3,9 @@
 namespace MongoDB\Aggregation\Converter\Stage;
 
 use MongoDB\Aggregation\Converter\AbstractConverter;
-use MongoDB\Aggregation\Stage\Sort as SortStage;
+use MongoDB\Aggregation\Stage\SortStage;
 
-final class Sort extends AbstractConverter
+final class SortStageConverter extends AbstractConverter
 {
     /**
      * @param mixed $value
