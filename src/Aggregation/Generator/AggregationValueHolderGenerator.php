@@ -9,50 +9,17 @@ use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Generator\ParameterGenerator;
 use Laminas\Code\Generator\PropertyGenerator;
-use Laminas\Code\Generator\TypeGenerator;
 use MongoDB\Aggregation\Expression\ResolvesToExpression;
 use MongoDB\Aggregation\Expression\ResolvesToArrayExpression;
 use MongoDB\Aggregation\Expression\ResolvesToMatchExpression;
 use MongoDB\Aggregation\Expression\ResolvesToSortSpecification;
-use function array_merge;
-use function array_unique;
 use function file_put_contents;
 use function ucfirst;
 use const PHP_EOL;
 
 /** @internal */
-final class AggregationClassGenerator
+final class AggregationValueHolderGenerator extends AbstractGenerator
 {
-    /** @var string */
-    private $filePath;
-
-    /** @var string */
-    private $namespace;
-
-    /** @var string|null */
-    private $parentClass;
-
-    /** @var array */
-    private $interfaces;
-
-    /** @var array[] */
-    private $typeAliases = [
-        'resolvesToExpression' => [ResolvesToExpression::class, 'array', 'object', 'string', 'int', 'float', 'bool', 'null'],
-        'resolvesToArrayExpression' => [ResolvesToArrayExpression::class, 'array', 'object', 'string'],
-        'resolvesToBoolExpression' => [ResolvesToBoolExpression::class, 'array', 'object', 'string', 'bool'],
-        'resolvesToMatchExpression' => ['array', 'object', ResolvesToMatchExpression::class],
-        'resolvesToNumberExpression' => [ResolvesToBoolExpression::class, 'array', 'object', 'string', 'int', 'float'],
-        'resolvesToSortSpecification' => ['array', 'object', ResolvesToSortSpecification::class],
-    ];
-
-    public function __construct(string $filePath, string $namespace, ?string $parentClass, array $interfaces)
-    {
-        $this->filePath = $filePath;
-        $this->namespace = $namespace;
-        $this->parentClass = $parentClass;
-        $this->interfaces = $interfaces;
-    }
-
     public function createClassForObject(object $object, bool $overwrite = false): void
     {
         $className = $object->className ?? ucfirst($object->name);
@@ -88,16 +55,6 @@ final class AggregationClassGenerator
         }
 
         file_put_contents($this->filePath . $fileName, $fileGenerator->generate());
-    }
-
-    public function createClassesForObjects(array $objects, bool $overwrite = false): void
-    {
-        array_map(
-            function ($object) use ($overwrite) {
-                $this->createClassForObject($object, $overwrite);
-            },
-            $objects
-        );
     }
 
     private function createArgGetter(object $arg): MethodGenerator
@@ -138,25 +95,5 @@ final class AggregationClassGenerator
         );
 
         return new DocBlockGenerator(null, null, $tags);
-    }
-
-    private function generateTypeString(string $type): string
-    {
-        return TypeGenerator::fromTypeString($this->resolveTypeAliases($type))->generate();
-    }
-
-    private function resolveTypeAliases(string $type): string
-    {
-        return implode(
-            '|',
-            array_unique(
-                array_merge(...array_map(
-                    function ($type): array {
-                        return $this->typeAliases[$type] ?? [$type];
-                    },
-                    explode('|', $type)
-                ))
-            )
-        );
     }
 }
