@@ -44,7 +44,7 @@ abstract class AbstractGenerator
     public function __construct(array $generatorConfig)
     {
         $this->filePath = $generatorConfig['filePath'];
-        $this->namespace = $generatorConfig['namespace'];
+        $this->namespace = rtrim($generatorConfig['namespace'], '\\');
         $this->parentClass = $generatorConfig['parentClass'] ?? null;
         $this->interfaces = $generatorConfig['interfaces'] ?? [];
         $this->classNameSuffix = $generatorConfig['classNameSuffix'] ?? '';
@@ -56,7 +56,6 @@ abstract class AbstractGenerator
             function ($object) use ($overwrite) {
                 $this->createFileForClass(
                     $this->filePath,
-                    $this->getClassName($object) . '.php',
                     $this->createClassForObject($object),
                     $overwrite
                 );
@@ -92,9 +91,12 @@ abstract class AbstractGenerator
         return ucfirst($object->name) . $this->classNameSuffix;
     }
 
-    private function createFileForClass(string $filePath, string $fileName, ClassGenerator $classGenerator, bool $overwrite): void
+    protected function createFileForClass(string $filePath, ClassGenerator $classGenerator, bool $overwrite): void
     {
-        if (file_exists($filePath . $fileName) && !$overwrite) {
+        $fileName = $classGenerator->getName() . '.php';
+        $fullName = $filePath . '/' . $fileName;
+
+        if (file_exists($fullName) && !$overwrite) {
             return;
         }
 
@@ -105,6 +107,6 @@ abstract class AbstractGenerator
             mkdir($filePath, 0775, true);
         }
 
-        file_put_contents($filePath . $fileName, $fileGenerator->generate());
+        file_put_contents($fullName, $fileGenerator->generate());
     }
 }

@@ -6,20 +6,19 @@ use InvalidArgumentException;
 use Laminas\Code\Generator\ClassGenerator;
 use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlockGenerator;
-use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Generator\ParameterGenerator;
 use MongoDB\Aggregation\Expression\ResolvesToExpression;
 use MongoDB\Aggregation\Expression\ResolvesToArrayExpression;
 use MongoDB\Aggregation\Expression\ResolvesToMatchExpression;
 use MongoDB\Aggregation\Expression\ResolvesToSortSpecification;
+use MongoDB\Codec\CodecLibrary;
 use function array_map;
 use function array_merge;
-use function file_put_contents;
+use function implode;
 use function rtrim;
 use function sprintf;
 use function ucfirst;
-use const PHP_EOL;
 
 /** @internal */
 final class ConverterClassGenerator extends AbstractGenerator
@@ -29,6 +28,12 @@ final class ConverterClassGenerator extends AbstractGenerator
 
     /** @var string */
     private $supportingClassNameSuffix;
+
+    /** @var string */
+    private $libraryNamespace;
+
+    /** @var string|null */
+    private $libraryClassName;
 
     public function __construct(array $generatorConfig)
     {
@@ -40,6 +45,17 @@ final class ConverterClassGenerator extends AbstractGenerator
 
         $this->supportingNamespace = rtrim($generatorConfig['supportingNamespace'], '\\');
         $this->supportingClassNameSuffix = $generatorConfig['supportingClassNameSuffix'] ?? '';
+        $this->libraryNamespace = rtrim($generatorConfig['libraryNamespace'] ?? '', '\\');
+        $this->libraryClassName = $generatorConfig['libraryClassName'] ?? null;
+    }
+
+    public function createClassesForObjects(array $objects, bool $overwrite = false): void
+    {
+        parent::createClassesForObjects($objects, $overwrite);
+
+        if ($this->libraryNamespace) {
+            $this->createNamespaceConverter($objects);
+        }
     }
 
     public function createClassForObject(object $object): ClassGenerator
@@ -61,6 +77,33 @@ final class ConverterClassGenerator extends AbstractGenerator
         $classGenerator->addMethods([$supportsGenerator, $convertGenerator]);
 
         return $classGenerator;
+    }
+
+    private function createNamespaceConverter(array $objects): void
+    {
+        $filePath = dirname(rtrim($this->filePath, '/'));
+
+        // No separation between namespace intentionally.
+        $className = $this->libraryClassName ?? $this->namespace . $this->classNameSuffix;
+
+        $classGenerator = new ClassGenerator($className, $this->libraryNamespace, ClassGenerator::FLAG_FINAL, CodecLibrary::class);
+        $constructorGenerator = (new MethodGenerator('__construct'))
+            ->setBody(sprintf('parent::__construct(%s);', implode(', ', $this->createConverterList($objects))));
+
+        $classGenerator->addMethodFromGenerator($constructorGenerator);
+
+        $this->createFileForClass($filePath, $classGenerator, true);
+    }
+
+    private function createConverterList(array $objects): array
+    {
+        return array_map(
+            function (object $object): string
+            {
+                return sprintf('new \\%s()', $this->namespace . '\\' . $this->getClassName($object));
+            },
+            $objects
+        );
     }
 
     private function createConvertBody(object $object): string
@@ -120,5 +163,4 @@ PHP;
     {
         return $this->supportingNamespace . '\\' . ucfirst($object->name) . $this->supportingClassNameSuffix;
     }
-
 }

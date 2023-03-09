@@ -1,6 +1,7 @@
 <?php
 
 use MongoDB\Aggregation\Converter\AbstractConverter;
+use MongoDB\Aggregation\Converter;
 use MongoDB\Aggregation\Stage;
 use MongoDB\Aggregation\Converter\Stage as StageConverter;
 use MongoDB\Aggregation\Converter\PipelineOperator as PipelineOperatorConverter;
@@ -31,6 +32,8 @@ $configs = [
             'classNameSuffix' => 'StageConverter',
             'supportingNamespace' => Stage::class,
             'supportingClassNameSuffix' => 'Stage',
+            'libraryNamespace' => Converter::class,
+            'libraryClassName' => 'StageConverter',
         ],
     ],
     'pipeline-operators' => [
@@ -49,6 +52,7 @@ $configs = [
             'parentClass' => AbstractConverter::class,
             'classNameSuffix' => 'Converter',
             'supportingNamespace' => PipelineOperator::class,
+            'libraryNamespace' => Converter::class,
         ],
     ],
 ];
