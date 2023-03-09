@@ -20,6 +20,10 @@
     <!-- Target minimum supported PHP version -->
     <config name="php_version" value="70400"/>
 
+    <!-- Ignore auto-generated code -->
+    <exclude-pattern>src/Aggregation/PipelineOperator</exclude-pattern>
+    <exclude-pattern>src/Aggregation/Stage</exclude-pattern>
+
     <!-- ****************************************** -->
     <!-- Import rules from doctrine/coding-standard -->
     <!-- ****************************************** -->

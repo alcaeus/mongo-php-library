@@ -2,20 +2,47 @@
 
 namespace MongoDB\Aggregation\PipelineOperator;
 
-use MongoDB\Aggregation\Expression\ResolvesToArrayExpression;
-use MongoDB\Aggregation\Generator\ResolvesToBoolExpression;
-
 final class Filter
 {
-    private ResolvesToArrayExpression|string|array|object $input = null;
+    /**
+     * @var
+     * \MongoDB\Aggregation\Expression\ResolvesToArrayExpression|string|array|object
+     * $input
+     */
+    private $input = null;
 
-    private ResolvesToBoolExpression|bool|string|array|object $cond = null;
+    /**
+     * @var
+     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|bool|string|array|object
+     * $cond
+     */
+    private $cond = null;
 
-    private string $as = null;
+    /**
+     * @var string $as
+     */
+    private $as = null;
 
-    private ResolvesToBoolExpression|int|float|string|array|object $limit = null;
+    /**
+     * @var
+     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|int|float|string|array|object
+     * $limit
+     */
+    private $limit = null;
 
-    public function __construct(ResolvesToArrayExpression|string|array|object $input, ResolvesToBoolExpression|bool|string|array|object $cond, string $as, ResolvesToBoolExpression|int|float|string|array|object $limit)
+    /**
+     * @param
+     * \MongoDB\Aggregation\Expression\ResolvesToArrayExpression|string|array|object
+     * $input
+     * @param
+     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|bool|string|array|object
+     * $cond
+     * @param string $as
+     * @param
+     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|int|float|string|array|object
+     * $limit
+     */
+    public function __construct($input, $cond, $as, $limit)
     {
         $this->input = $input;
         $this->cond = $cond;
@@ -23,23 +50,39 @@ final class Filter
         $this->limit = $limit;
     }
 
-    public function getInput(): ResolvesToArrayExpression|string|array|object
+    /**
+     * @return
+     * \MongoDB\Aggregation\Expression\ResolvesToArrayExpression|string|array|object
+     */
+    public function getInput()
     {
         return $this->input;
     }
 
-    public function getCond(): ResolvesToBoolExpression|bool|string|array|object
+    /**
+     * @return
+     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|bool|string|array|object
+     */
+    public function getCond()
     {
         return $this->cond;
     }
 
-    public function getAs(): string
+    /**
+     * @return string
+     */
+    public function getAs()
     {
         return $this->as;
     }
 
-    public function getLimit(): ResolvesToBoolExpression|int|float|string|array|object
+    /**
+     * @return
+     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|int|float|string|array|object
+     */
+    public function getLimit()
     {
         return $this->limit;
     }
 }
+

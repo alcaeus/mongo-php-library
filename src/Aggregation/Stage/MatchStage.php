@@ -2,16 +2,17 @@
 
 namespace MongoDB\Aggregation\Stage;
 
-use MongoDB\Aggregation\Expression\ResolvesToMatchExpression;
-use MongoDB\Aggregation\Stage;
-
-final class MatchStage implements Stage
+final class MatchStage implements \MongoDB\Aggregation\Stage
 {
-    /** @var ResolvesToMatchExpression|array|object $matchExpr */
+    /**
+     * @var \MongoDB\Aggregation\Expression\ResolvesToMatchExpression|array|object
+     * $matchExpr
+     */
     private $matchExpr = null;
 
     /**
-     * @param ResolvesToMatchExpression|array|object $matchExpr
+     * @param \MongoDB\Aggregation\Expression\ResolvesToMatchExpression|array|object
+     * $matchExpr
      */
     public function __construct($matchExpr)
     {
@@ -19,10 +20,11 @@ final class MatchStage implements Stage
     }
 
     /**
-     * @return ResolvesToMatchExpression|array|object
+     * @return \MongoDB\Aggregation\Expression\ResolvesToMatchExpression|array|object
      */
     public function getMatchExpr()
     {
         return $this->matchExpr;
     }
 }
+
