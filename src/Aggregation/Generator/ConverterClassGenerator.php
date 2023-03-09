@@ -2,22 +2,21 @@
 
 namespace MongoDB\Aggregation\Generator;
 
+use InvalidArgumentException;
 use Laminas\Code\Generator\ClassGenerator;
 use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Generator\ParameterGenerator;
-use Laminas\Code\Generator\PropertyGenerator;
-use Laminas\Code\Generator\TypeGenerator;
 use MongoDB\Aggregation\Expression\ResolvesToExpression;
 use MongoDB\Aggregation\Expression\ResolvesToArrayExpression;
 use MongoDB\Aggregation\Expression\ResolvesToMatchExpression;
 use MongoDB\Aggregation\Expression\ResolvesToSortSpecification;
 use function array_map;
 use function array_merge;
-use function array_unique;
 use function file_put_contents;
+use function rtrim;
 use function sprintf;
 use function ucfirst;
 use const PHP_EOL;
@@ -25,6 +24,24 @@ use const PHP_EOL;
 /** @internal */
 final class ConverterClassGenerator extends AbstractGenerator
 {
+    /** @var string */
+    private $supportingNamespace;
+
+    /** @var string */
+    private $supportingClassNameSuffix;
+
+    public function __construct(array $generatorConfig)
+    {
+        parent::__construct($generatorConfig);
+
+        if (!isset($generatorConfig['supportingNamespace'])) {
+            throw new InvalidArgumentException('Required parameter "supportingNamespace" missing');
+        }
+
+        $this->supportingNamespace = rtrim($generatorConfig['supportingNamespace'], '\\');
+        $this->supportingClassNameSuffix = $generatorConfig['supportingClassNameSuffix'] ?? '';
+    }
+
     public function createClassForObject(object $object, bool $overwrite = false): void
     {
         $className = ucfirst($object->name) . $this->classNameSuffix;
@@ -39,18 +56,12 @@ final class ConverterClassGenerator extends AbstractGenerator
             ->setDocBlock(new DocBlockGenerator(null, null, [new GenericTag('param', 'mixed $value')]))
             ->setParameter(new ParameterGenerator('value'))
             ->setReturnType('bool')
-            ->setBody(
-                <<<PHP
-                    return false;
-PHP
-            );
+            ->setBody($this->createSupportsBody($object));
 
         $convertGenerator = (new MethodGenerator('convert'))
             ->setDocBlock(new DocBlockGenerator(null, null, [new GenericTag('param', 'mixed $value')]))
             ->setParameter(new ParameterGenerator('value'))
-            ->setBody(
-                $this->createConvertBody($object)
-            );
+            ->setBody($this->createConvertBody($object));
 
         $classGenerator->addMethods([$supportsGenerator, $convertGenerator]);
 
@@ -110,5 +121,15 @@ PHP;
         }
 
         return sprintf($format, $object->name, $argumentString);
+    }
+
+    private function createSupportsBody(object $object): string
+    {
+        return sprintf('return $value instanceof %s::class;', $this->getSupportingClassName($object));
+    }
+
+    private function getSupportingClassName($object): ?string
+    {
+        return $this->supportingNamespace . '\\' . ucfirst($object->name) . $this->supportingClassNameSuffix;
     }
 }

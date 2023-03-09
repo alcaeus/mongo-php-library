@@ -29,6 +29,8 @@ $configs = [
             'filePath' => __DIR__ . '/../src/Aggregation/Converter/Stage/',
             'parentClass' => AbstractConverter::class,
             'classNameSuffix' => 'StageConverter',
+            'supportingNamespace' => Stage::class,
+            'supportingClassNameSuffix' => 'Stage',
         ],
     ],
     'pipeline-operators' => [
@@ -46,6 +48,7 @@ $configs = [
             'filePath' => __DIR__ . '/../src/Aggregation/Converter/PipelineOperator/',
             'parentClass' => AbstractConverter::class,
             'classNameSuffix' => 'Converter',
+            'supportingNamespace' => PipelineOperator::class,
         ],
     ],
 ];
@@ -61,12 +64,6 @@ foreach ($generators as $generatorConfig) {
     $generatorClass = $generatorConfig['generatorClass'] ?? AggregationValueHolderGenerator::class;
     $objects = Yaml::parseFile($generatorConfig['configFile'], Yaml::PARSE_OBJECT_FOR_MAP);
 
-    $generator = new $generatorClass(
-        $generatorConfig['filePath'],
-        $generatorConfig['namespace'],
-        $generatorConfig['parentClass'] ?? null,
-        $generatorConfig['interfaces'] ?? [],
-        $generatorConfig['classNameSuffix'] ?? '',
-    );
+    $generator = new $generatorClass($generatorConfig);
     $generator->createClassesForObjects($objects, $generatorConfig['overwrite'] ?? false);
 }

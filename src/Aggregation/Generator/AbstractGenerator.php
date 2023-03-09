@@ -35,14 +35,13 @@ abstract class AbstractGenerator
     /** @var string */
     protected $classNameSuffix;
 
-    // TODO: Having this final is ugly but required
-    final public function __construct(string $filePath, string $namespace, ?string $parentClass, array $interfaces, string $classNameSuffix)
+    public function __construct(array $generatorConfig)
     {
-        $this->filePath = $filePath;
-        $this->namespace = $namespace;
-        $this->parentClass = $parentClass;
-        $this->interfaces = $interfaces;
-        $this->classNameSuffix = $classNameSuffix;
+        $this->filePath = $generatorConfig['filePath'];
+        $this->namespace = $generatorConfig['namespace'];
+        $this->parentClass = $generatorConfig['parentClass'] ?? null;
+        $this->interfaces = $generatorConfig['interfaces'] ?? [];
+        $this->classNameSuffix = $generatorConfig['classNameSuffix'] ?? '';
     }
 
     final public function createClassesForObjects(array $objects, bool $overwrite = false): void
