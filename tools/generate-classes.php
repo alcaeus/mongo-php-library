@@ -3,6 +3,7 @@
 use MongoDB\Aggregation\Converter\AbstractConverter;
 use MongoDB\Aggregation\Stage;
 use MongoDB\Aggregation\Converter\Stage as StageConverter;
+use MongoDB\Aggregation\Converter\PipelineOperator as PipelineOperatorConverter;
 use MongoDB\Aggregation\Generator\AggregationValueHolderGenerator;
 use MongoDB\Aggregation\Generator\ConverterClassGenerator;
 use MongoDB\Aggregation\PipelineOperator;
@@ -35,6 +36,13 @@ $configs = [
             'overwrite' => true,
             'namespace' => PipelineOperator::class,
             'filePath' => __DIR__ . '/../src/Aggregation/PipelineOperator/',
+        ],
+        [
+            'configFile' => __DIR__ . '/../src/Aggregation/config/pipeline-operators.yaml',
+            'generatorClass' => ConverterClassGenerator::class,
+            'namespace' => PipelineOperatorConverter::class,
+            'filePath' => __DIR__ . '/../src/Aggregation/Converter/PipelineOperator/',
+            'parentClass' => AbstractConverter::class,
         ],
     ],
 ];

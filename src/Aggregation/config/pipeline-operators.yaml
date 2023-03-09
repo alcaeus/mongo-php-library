@@ -11,6 +11,7 @@
     - name: expression2
       type: resolvesToExpression
 - name: filter
+  usesNamedArgs: true
   args:
     - name: input
       type: resolvesToArrayExpression
