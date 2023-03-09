@@ -6,14 +6,14 @@
 
 namespace MongoDB\Aggregation\Converter\PipelineOperator;
 
-final class FilterConverter extends \MongoDB\Aggregation\Converter\AbstractConverter
+final class FilterPipelineOperatorConverter extends \MongoDB\Aggregation\Converter\AbstractConverter
 {
     /**
      * @param mixed $expression
      */
     protected function supports($expression) : bool
     {
-        return $expression instanceof \MongoDB\Aggregation\PipelineOperator\Filter;
+        return $expression instanceof \MongoDB\Aggregation\PipelineOperator\FilterPipelineOperator;
     }
 
     /**

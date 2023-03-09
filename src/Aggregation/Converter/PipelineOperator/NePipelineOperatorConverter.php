@@ -6,14 +6,14 @@
 
 namespace MongoDB\Aggregation\Converter\PipelineOperator;
 
-final class EqConverter extends \MongoDB\Aggregation\Converter\AbstractConverter
+final class NePipelineOperatorConverter extends \MongoDB\Aggregation\Converter\AbstractConverter
 {
     /**
      * @param mixed $expression
      */
     protected function supports($expression) : bool
     {
-        return $expression instanceof \MongoDB\Aggregation\PipelineOperator\Eq;
+        return $expression instanceof \MongoDB\Aggregation\PipelineOperator\NePipelineOperator;
     }
 
     /**
@@ -22,7 +22,7 @@ final class EqConverter extends \MongoDB\Aggregation\Converter\AbstractConverter
     protected function convert($expression)
     {
         return (object) [
-                        '$eq' => [
+                        '$ne' => [
         $this->encodeWithLibraryIfSupported($expression->getExpression1()),
         $this->encodeWithLibraryIfSupported($expression->getExpression2()),
         ]

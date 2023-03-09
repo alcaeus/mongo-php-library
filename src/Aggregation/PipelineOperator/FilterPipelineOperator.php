@@ -6,7 +6,7 @@
 
 namespace MongoDB\Aggregation\PipelineOperator;
 
-final class Filter
+final class FilterPipelineOperator
 {
     /**
      * @var

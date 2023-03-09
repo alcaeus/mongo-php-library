@@ -43,6 +43,7 @@ $configs = [
             'overwrite' => true,
             'namespace' => PipelineOperator::class,
             'filePath' => __DIR__ . '/../src/Aggregation/PipelineOperator/',
+            'classNameSuffix' => 'PipelineOperator',
         ],
         [
             'configFile' => __DIR__ . '/../src/Aggregation/config/pipeline-operators.yaml',
@@ -51,9 +52,11 @@ $configs = [
             'namespace' => PipelineOperatorConverter::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Converter/PipelineOperator/',
             'parentClass' => AbstractConverter::class,
-            'classNameSuffix' => 'Converter',
+            'classNameSuffix' => 'PipelineOperatorConverter',
             'supportingNamespace' => PipelineOperator::class,
+            'supportingClassNameSuffix' => 'PipelineOperator',
             'libraryNamespace' => Converter::class,
+            'libraryClassName' => 'PipelineOperatorConverter',
         ],
     ],
 ];

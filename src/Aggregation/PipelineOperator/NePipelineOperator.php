@@ -6,7 +6,7 @@
 
 namespace MongoDB\Aggregation\PipelineOperator;
 
-final class Eq
+final class NePipelineOperator
 {
     /**
      * @var
