@@ -67,9 +67,15 @@ final class AggregationValueHolderGenerator extends AbstractGenerator
     {
         $isOptional = $arg->isOptional ?? false;
 
-        return (new ParameterGenerator($arg->name))
-            ->setDefaultValue($arg->defaultValue ?? null)
-            ->omitDefaultValue(!$isOptional);
+        $parameterGenerator = new ParameterGenerator($arg->name);
+        $isVariadic = $arg->isVariadic ?? false;
+        if ($isOptional && !$isVariadic) {
+            $parameterGenerator->setDefaultValue($arg->defaultValue ?? null);
+        }
+
+        return $parameterGenerator
+            ->setVariadic($isVariadic)
+            ->omitDefaultValue(!$isOptional || $isVariadic);
     }
 
     private function createConstructorDocblock(array $args): DocBlockGenerator

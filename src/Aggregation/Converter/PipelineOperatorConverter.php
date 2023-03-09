@@ -10,7 +10,7 @@ final class PipelineOperatorConverter extends \MongoDB\Codec\CodecLibrary
 {
     public function __construct()
     {
-        parent::__construct(new \MongoDB\Aggregation\Converter\PipelineOperator\EqPipelineOperatorConverter(), new \MongoDB\Aggregation\Converter\PipelineOperator\NePipelineOperatorConverter(), new \MongoDB\Aggregation\Converter\PipelineOperator\FilterPipelineOperatorConverter());
+        parent::__construct(new \MongoDB\Aggregation\Converter\PipelineOperator\AndPipelineOperatorConverter(), new \MongoDB\Aggregation\Converter\PipelineOperator\EqPipelineOperatorConverter(), new \MongoDB\Aggregation\Converter\PipelineOperator\NePipelineOperatorConverter(), new \MongoDB\Aggregation\Converter\PipelineOperator\FilterPipelineOperatorConverter());
     }
 }
 

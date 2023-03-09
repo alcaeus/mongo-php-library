@@ -110,12 +110,13 @@ final class ConverterClassGenerator extends AbstractGenerator
         $args = array_merge(...array_map(
             function (object $arg): array
             {
+                $format = $arg->isVariadic ?? false
+                    ? 'array_map([$this, \'encodeWithLibraryIfSupported\'], $expression->%s())'
+                    : '$this->encodeWithLibraryIfSupported($expression->%s())';
+
                 return [[
                     'name' => $arg->name,
-                    'value' => sprintf(
-                        '$this->encodeWithLibraryIfSupported($expression->%s())',
-                        'get' . ucfirst($arg->name)
-                    )
+                    'value' => sprintf($format, 'get' . ucfirst($arg->name))
                 ]];
             },
             $object->args

@@ -1,3 +1,8 @@
+- name: and
+  args:
+    - name: expressions
+      type: resolvesToExpression
+      isVariadic: true
 - name: eq
   args:
     - name: expression1
