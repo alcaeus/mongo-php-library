@@ -7,22 +7,22 @@ use MongoDB\Aggregation\Stage;
 
 final class Sort implements Stage
 {
-    /** @var ResolvesToSortSpecification|array|object $sortSpecificataion */
-    private $sortSpecificataion = null;
+    /** @var ResolvesToSortSpecification|array|object $sortSpecification */
+    private $sortSpecification = null;
 
     /**
-     * @param ResolvesToSortSpecification|array|object $sortSpecificataion
+     * @param ResolvesToSortSpecification|array|object $sortSpecification
      */
-    public function __construct($sortSpecificataion)
+    public function __construct($sortSpecification)
     {
-        $this->sortSpecificataion = $sortSpecificataion;
+        $this->sortSpecification = $sortSpecification;
     }
 
     /**
      * @return ResolvesToSortSpecification|array|object
      */
-    public function getSortSpecificataion()
+    public function getSortSpecification()
     {
-        return $this->sortSpecificataion;
+        return $this->sortSpecification;
     }
 }

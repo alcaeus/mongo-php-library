@@ -7,7 +7,7 @@
 
 - name: sort
   args:
-    - name: sortSpecificataion
+    - name: sortSpecification
       type: resolvesToSortSpecification
 
 - name: limit
