@@ -20,14 +20,9 @@ use const PHP_EOL;
 /** @internal */
 final class AggregationValueHolderGenerator extends AbstractGenerator
 {
-    public function createClassForObject(object $object, bool $overwrite = false): void
+    public function createClassForObject(object $object): ClassGenerator
     {
-        $className = ucfirst($object->name) . $this->classNameSuffix;
-        $fileName = $className . '.php';
-
-        if (file_exists($this->filePath . $fileName) && !$overwrite) {
-            return;
-        }
+        $className = $this->getClassName($object);
 
         $classGenerator = new ClassGenerator($className, $this->namespace, ClassGenerator::FLAG_FINAL, $this->parentClass, $this->interfaces);
         $constructorGenerator = new MethodGenerator('__construct');
@@ -47,14 +42,7 @@ final class AggregationValueHolderGenerator extends AbstractGenerator
         $constructorGenerator->setBody(implode(PHP_EOL, $body));
         $constructorGenerator->setDocBlock($this->createConstructorDocblock($object->args));
 
-        $fileGenerator = new FileGenerator();
-        $fileGenerator->setClass($classGenerator);
-
-        if (! file_exists($this->filePath)) {
-            mkdir($this->filePath, 0777, true);
-        }
-
-        file_put_contents($this->filePath . $fileName, $fileGenerator->generate());
+        return $classGenerator;
     }
 
     private function createArgGetter(object $arg): MethodGenerator

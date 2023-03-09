@@ -2,12 +2,18 @@
 
 namespace MongoDB\Aggregation\Generator;
 
+use Laminas\Code\Generator\ClassGenerator;
+use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\TypeGenerator;
 use MongoDB\Aggregation\Expression\ResolvesToExpression;
 use MongoDB\Aggregation\Expression\ResolvesToArrayExpression;
 use MongoDB\Aggregation\Expression\ResolvesToMatchExpression;
 use MongoDB\Aggregation\Expression\ResolvesToSortSpecification;
+use function file_exists;
+use function file_put_contents;
+use function mkdir;
 
+/** @internal */
 abstract class AbstractGenerator
 {
     /** @var array[] */
@@ -44,17 +50,22 @@ abstract class AbstractGenerator
         $this->classNameSuffix = $generatorConfig['classNameSuffix'] ?? '';
     }
 
-    final public function createClassesForObjects(array $objects, bool $overwrite = false): void
+    public function createClassesForObjects(array $objects, bool $overwrite = false): void
     {
         array_map(
             function ($object) use ($overwrite) {
-                $this->createClassForObject($object, $overwrite);
+                $this->createFileForClass(
+                    $this->filePath,
+                    $this->getClassName($object) . '.php',
+                    $this->createClassForObject($object),
+                    $overwrite
+                );
             },
             $objects
         );
     }
 
-    abstract public function createClassForObject(object $object, bool $overwrite = false): void;
+    abstract public function createClassForObject(object $object): ClassGenerator;
 
     final protected function generateTypeString(string $type): string
     {
@@ -74,5 +85,26 @@ abstract class AbstractGenerator
                 ))
             )
         );
+    }
+
+    protected function getClassName(object $object): string
+    {
+        return ucfirst($object->name) . $this->classNameSuffix;
+    }
+
+    private function createFileForClass(string $filePath, string $fileName, ClassGenerator $classGenerator, bool $overwrite): void
+    {
+        if (file_exists($filePath . $fileName) && !$overwrite) {
+            return;
+        }
+
+        $fileGenerator = new FileGenerator();
+        $fileGenerator->setClass($classGenerator);
+
+        if (!file_exists($filePath)) {
+            mkdir($filePath, 0775, true);
+        }
+
+        file_put_contents($filePath . $fileName, $fileGenerator->generate());
     }
 }
