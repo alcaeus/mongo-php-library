@@ -1,7 +1,11 @@
 <?php
 
+use MongoDB\Aggregation\Converter\AbstractConverter;
 use MongoDB\Aggregation\Stage;
+use MongoDB\Aggregation\Converter\Stage as StageConverter;
 use MongoDB\Aggregation\Generator\AggregationValueHolderGenerator;
+use MongoDB\Aggregation\Generator\ConverterClassGenerator;
+use MongoDB\Aggregation\PipelineOperator;
 use Symfony\Component\Yaml\Yaml;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -15,6 +19,13 @@ $configs = [
             'namespace' => Stage::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Stage/',
             'interfaces' => [Stage::class],
+        ],
+        [
+            'configFile' => __DIR__ . '/../src/Aggregation/config/stages.yaml',
+            'generatorClass' => ConverterClassGenerator::class,
+            'namespace' => StageConverter::class,
+            'filePath' => __DIR__ . '/../src/Aggregation/Converter/Stage/',
+            'parentClass' => AbstractConverter::class,
         ],
     ],
     'pipeline-operators' => [

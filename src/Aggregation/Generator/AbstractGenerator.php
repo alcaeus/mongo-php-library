@@ -3,6 +3,10 @@
 namespace MongoDB\Aggregation\Generator;
 
 use Laminas\Code\Generator\TypeGenerator;
+use MongoDB\Aggregation\Expression\ResolvesToExpression;
+use MongoDB\Aggregation\Expression\ResolvesToArrayExpression;
+use MongoDB\Aggregation\Expression\ResolvesToMatchExpression;
+use MongoDB\Aggregation\Expression\ResolvesToSortSpecification;
 
 abstract class AbstractGenerator
 {
