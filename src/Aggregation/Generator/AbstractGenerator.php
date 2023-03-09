@@ -3,6 +3,7 @@
 namespace MongoDB\Aggregation\Generator;
 
 use Laminas\Code\Generator\ClassGenerator;
+use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\TypeGenerator;
 use MongoDB\Aggregation\Expression\ResolvesToExpression;
@@ -107,6 +108,9 @@ abstract class AbstractGenerator
 
         $fileGenerator = new FileGenerator();
         $fileGenerator->setClass($classGenerator);
+        if ($overwrite) {
+            $fileGenerator->setDocBlock(new DocBlockGenerator('THIS FILE IS AUTO-GENERATED. ANY CHANGES WILL BE LOST!'));
+        }
 
         if (!file_exists($filePath)) {
             mkdir($filePath, 0775, true);

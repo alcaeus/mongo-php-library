@@ -1,4 +1,8 @@
 <?php
+/**
+ * THIS FILE IS AUTO-GENERATED. ANY CHANGES WILL BE LOST!
+ */
+
 
 namespace MongoDB\Aggregation\Stage;
 
@@ -7,7 +11,7 @@ final class LimitStage implements \MongoDB\Aggregation\Stage
     /**
      * @var int $limit
      */
-    private $limit = null;
+    private $limit;
 
     /**
      * @param int $limit

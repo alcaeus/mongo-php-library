@@ -1,4 +1,8 @@
 <?php
+/**
+ * THIS FILE IS AUTO-GENERATED. ANY CHANGES WILL BE LOST!
+ */
+
 
 namespace MongoDB\Aggregation\Stage;
 
@@ -8,7 +12,7 @@ final class MatchStage implements \MongoDB\Aggregation\Stage
      * @var \MongoDB\Aggregation\Expression\ResolvesToMatchExpression|array|object
      * $matchExpr
      */
-    private $matchExpr = null;
+    private $matchExpr;
 
     /**
      * @param \MongoDB\Aggregation\Expression\ResolvesToMatchExpression|array|object

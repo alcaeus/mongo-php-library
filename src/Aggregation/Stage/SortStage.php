@@ -1,4 +1,8 @@
 <?php
+/**
+ * THIS FILE IS AUTO-GENERATED. ANY CHANGES WILL BE LOST!
+ */
+
 
 namespace MongoDB\Aggregation\Stage;
 
@@ -8,7 +12,7 @@ final class SortStage implements \MongoDB\Aggregation\Stage
      * @var \MongoDB\Aggregation\Expression\ResolvesToSortSpecification|array|object
      * $sortSpecification
      */
-    private $sortSpecification = null;
+    private $sortSpecification;
 
     /**
      * @param \MongoDB\Aggregation\Expression\ResolvesToSortSpecification|array|object
