@@ -64,12 +64,14 @@ final class ConverterClassGenerator extends AbstractGenerator
 
         $classGenerator = new ClassGenerator($className, $this->namespace, ClassGenerator::FLAG_FINAL, $this->parentClass, $this->interfaces);
         $supportsGenerator = (new MethodGenerator('supports'))
+            ->setVisibility(MethodGenerator::FLAG_PROTECTED)
             ->setDocBlock(new DocBlockGenerator(null, null, [new GenericTag('param', 'mixed $value')]))
             ->setParameter(new ParameterGenerator('value'))
             ->setReturnType('bool')
             ->setBody($this->createSupportsBody($object));
 
         $convertGenerator = (new MethodGenerator('convert'))
+            ->setVisibility(MethodGenerator::FLAG_PROTECTED)
             ->setDocBlock(new DocBlockGenerator(null, null, [new GenericTag('param', 'mixed $value')]))
             ->setParameter(new ParameterGenerator('value'))
             ->setBody($this->createConvertBody($object));
