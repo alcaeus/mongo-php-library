@@ -15,7 +15,7 @@ class EqConverterTest extends TestCase
 
         $this->assertEquals(
             (object) ['$eq' => ['foo', 'bar']],
-            $converter->convert($operator)
+            $converter->encode($operator)
         );
     }
 
@@ -23,7 +23,7 @@ class EqConverterTest extends TestCase
     {
         $converter = new EqConverter();
 
-        $this->assertTrue($converter->supports(new Eq([], [])));
-        $this->assertFalse($converter->supports('foo'));
+        $this->assertTrue($converter->canEncode(new Eq([], [])));
+        $this->assertFalse($converter->canEncode('foo'));
     }
 }

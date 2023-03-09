@@ -66,8 +66,13 @@ abstract class AbstractGenerator
 
     abstract public function createClassForObject(object $object): ClassGenerator;
 
-    final protected function generateTypeString(string $type): string
+    final protected function generateTypeString(object $arg): string
     {
+        $type = $arg->type;
+        if ($arg->isOptional ?? false) {
+            $type .= '|null';
+        }
+
         return TypeGenerator::fromTypeString($this->resolveTypeAliases($type))->generate();
     }
 

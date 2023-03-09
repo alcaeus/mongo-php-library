@@ -9,26 +9,26 @@ final class Filter
      * \MongoDB\Aggregation\Expression\ResolvesToArrayExpression|string|array|object
      * $input
      */
-    private $input = null;
+    private $input;
 
     /**
      * @var
      * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|bool|string|array|object
      * $cond
      */
-    private $cond = null;
+    private $cond;
 
     /**
-     * @var string $as
+     * @var string|null $as
      */
-    private $as = null;
+    private $as;
 
     /**
      * @var
-     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|int|float|string|array|object
+     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|int|float|string|array|object|null
      * $limit
      */
-    private $limit = null;
+    private $limit;
 
     /**
      * @param
@@ -37,12 +37,12 @@ final class Filter
      * @param
      * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|bool|string|array|object
      * $cond
-     * @param string $as
+     * @param string|null $as
      * @param
-     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|int|float|string|array|object
+     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|int|float|string|array|object|null
      * $limit
      */
-    public function __construct($input, $cond, $as, $limit)
+    public function __construct($input, $cond, $as = null, $limit = null)
     {
         $this->input = $input;
         $this->cond = $cond;
@@ -69,7 +69,7 @@ final class Filter
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getAs()
     {
@@ -78,7 +78,7 @@ final class Filter
 
     /**
      * @return
-     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|int|float|string|array|object
+     * \MongoDB\Aggregation\Generator\ResolvesToBoolExpression|int|float|string|array|object|null
      */
     public function getLimit()
     {

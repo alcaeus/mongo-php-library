@@ -2,37 +2,34 @@
 
 namespace MongoDB\Aggregation\Converter\PipelineOperator;
 
-use MongoDB\Aggregation\Converter\AbstractConverter;
-use MongoDB\Aggregation\PipelineOperator\Filter;
-
-use function array_filter;
-
-final class FilterConverter extends AbstractConverter
+final class FilterConverter extends \MongoDB\Aggregation\Converter\AbstractConverter
 {
     /**
-     * @param mixed $value
+     * @param mixed $expression
      */
-    protected function supports($value): bool
+    protected function supports($expression) : bool
     {
-        return $value instanceof Filter;
+        return $expression instanceof \MongoDB\Aggregation\PipelineOperator\Filter;
     }
 
     /**
-     * @param Filter $value
+     * @param mixed $expression
      */
-    protected function convert($value): object
+    protected function convert($expression)
     {
-        $args = [
-            'input' => $this->encodeWithLibraryIfSupported($value->getInput()),
-            'cond' => $this->encodeWithLibraryIfSupported($value->getCond()),
-            'as' => $this->encodeWithLibraryIfSupported($value->getAs()),
-            'limit' => $this->encodeWithLibraryIfSupported($value->getLimit()),
-        ];
-
         return (object) [
-            '$filter' => (object) array_filter($args, function ($arg) {
-                return $arg !== null;
-            }),
-        ];
+                        '$filter' =>                     (object) array_filter(
+                                ['input' => $this->encodeWithLibraryIfSupported($expression->getInput()),
+        'cond' => $this->encodeWithLibraryIfSupported($expression->getCond()),
+        'as' => $this->encodeWithLibraryIfSupported($expression->getAs()),
+        'limit' => $this->encodeWithLibraryIfSupported($expression->getLimit()),],
+                                function ($value, $key): bool
+                                {
+                                    return !in_array($key, ['as', 'limit']) || $value !== null;
+                                },
+                                ARRAY_FILTER_USE_BOTH
+                            )
+                    ];
     }
 }
+

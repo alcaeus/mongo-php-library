@@ -2,29 +2,27 @@
 
 namespace MongoDB\Aggregation\Converter\PipelineOperator;
 
-use MongoDB\Aggregation\Converter\AbstractConverter;
-use MongoDB\Aggregation\PipelineOperator\Ne;
-
-final class NeConverter extends AbstractConverter
+final class NeConverter extends \MongoDB\Aggregation\Converter\AbstractConverter
 {
     /**
-     * @param mixed $value
+     * @param mixed $expression
      */
-    protected function supports($value): bool
+    protected function supports($expression) : bool
     {
-        return $value instanceof Ne;
+        return $expression instanceof \MongoDB\Aggregation\PipelineOperator\Ne;
     }
 
     /**
-     * @param Ne $value
+     * @param mixed $expression
      */
-    protected function convert($value): object
+    protected function convert($expression)
     {
         return (object) [
-            '$ne' => [
-                $this->encodeWithLibraryIfSupported($value->getExpression1()),
-                $this->encodeWithLibraryIfSupported($value->getExpression2()),
-            ],
-        ];
+                        '$ne' => [
+        $this->encodeWithLibraryIfSupported($expression->getExpression1()),
+        $this->encodeWithLibraryIfSupported($expression->getExpression2()),
+        ]
+                    ];
     }
 }
+

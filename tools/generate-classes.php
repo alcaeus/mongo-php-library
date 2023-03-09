@@ -46,6 +46,7 @@ $configs = [
         ],
         [
             'configFile' => __DIR__ . '/../src/Aggregation/config/pipeline-operators.yaml',
+            'overwrite' => true,
             'generatorClass' => ConverterClassGenerator::class,
             'namespace' => PipelineOperatorConverter::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Converter/PipelineOperator/',

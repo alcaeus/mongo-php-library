@@ -9,14 +9,14 @@ final class Ne
      * \MongoDB\Aggregation\Expression\ResolvesToExpression|bool|int|float|string|array|object|null
      * $expression1
      */
-    private $expression1 = null;
+    private $expression1;
 
     /**
      * @var
      * \MongoDB\Aggregation\Expression\ResolvesToExpression|bool|int|float|string|array|object|null
      * $expression2
      */
-    private $expression2 = null;
+    private $expression2;
 
     /**
      * @param

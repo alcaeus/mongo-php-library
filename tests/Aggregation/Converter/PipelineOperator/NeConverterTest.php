@@ -15,7 +15,7 @@ class NeConverterTest extends TestCase
 
         $this->assertEquals(
             (object) ['$ne' => ['foo', 'bar']],
-            $converter->convert($operator)
+            $converter->encode($operator)
         );
     }
 
@@ -23,7 +23,7 @@ class NeConverterTest extends TestCase
     {
         $converter = new NeConverter();
 
-        $this->assertTrue($converter->supports(new Ne([], [])));
-        $this->assertFalse($converter->supports('foo'));
+        $this->assertTrue($converter->canEncode(new Ne([], [])));
+        $this->assertFalse($converter->canEncode('foo'));
     }
 }

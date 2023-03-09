@@ -20,7 +20,7 @@ class FilterConverterTest extends TestCase
 
         $this->assertEquals(
             $expected,
-            $converter->convert($operator)
+            $converter->encode($operator)
         );
     }
 
@@ -57,7 +57,7 @@ class FilterConverterTest extends TestCase
                     'cond' => (object) ['$eq' => [1, 2]],
                 ],
             ],
-            $converter->convert($operator)
+            $converter->encode($operator)
         );
     }
 
@@ -65,7 +65,7 @@ class FilterConverterTest extends TestCase
     {
         $converter = new FilterConverter();
 
-        $this->assertTrue($converter->supports(new Filter([], [], null, 1)));
-        $this->assertFalse($converter->supports('foo'));
+        $this->assertTrue($converter->canEncode(new Filter([], [], null, 1)));
+        $this->assertFalse($converter->canEncode('foo'));
     }
 }

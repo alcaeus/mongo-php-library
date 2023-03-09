@@ -19,5 +19,7 @@
       type: resolvesToBoolExpression
     - name: as
       type: string
+      isOptional: true
     - name: limit
       type: resolvesToNumberExpression
+      isOptional: true

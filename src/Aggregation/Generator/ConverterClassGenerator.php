@@ -8,11 +8,8 @@ use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Generator\ParameterGenerator;
-use MongoDB\Aggregation\Expression\ResolvesToExpression;
-use MongoDB\Aggregation\Expression\ResolvesToArrayExpression;
-use MongoDB\Aggregation\Expression\ResolvesToMatchExpression;
-use MongoDB\Aggregation\Expression\ResolvesToSortSpecification;
 use MongoDB\Codec\CodecLibrary;
+use function array_filter;
 use function array_map;
 use function array_merge;
 use function implode;
@@ -64,14 +61,14 @@ final class ConverterClassGenerator extends AbstractGenerator
 
         $classGenerator = new ClassGenerator($className, $this->namespace, ClassGenerator::FLAG_FINAL, $this->parentClass, $this->interfaces);
         $supportsGenerator = (new MethodGenerator('supports'))
-            ->setVisibility(MethodGenerator::FLAG_PROTECTED)
+            ->setVisibility(MethodGenerator::VISIBILITY_PROTECTED)
             ->setDocBlock(new DocBlockGenerator(null, null, [new GenericTag('param', 'mixed $expression')]))
             ->setParameter(new ParameterGenerator('expression'))
             ->setReturnType('bool')
             ->setBody($this->createSupportsBody($object));
 
         $convertGenerator = (new MethodGenerator('convert'))
-            ->setVisibility(MethodGenerator::FLAG_PROTECTED)
+            ->setVisibility(MethodGenerator::VISIBILITY_PROTECTED)
             ->setDocBlock(new DocBlockGenerator(null, null, [new GenericTag('param', 'mixed $expression')]))
             ->setParameter(new ParameterGenerator('expression'))
             ->setBody($this->createConvertBody($object));
@@ -116,7 +113,7 @@ final class ConverterClassGenerator extends AbstractGenerator
                 return [[
                     'name' => $arg->name,
                     'value' => sprintf(
-                        '$this->encodeWithLibraryIfSupported($value->%s())',
+                        '$this->encodeWithLibraryIfSupported($expression->%s())',
                         'get' . ucfirst($arg->name)
                     )
                 ]];
@@ -141,7 +138,22 @@ PHP;
                 $args
             );
 
-            $argumentString = sprintf("(object) [\n%s\n]", implode("\n", $argSpecs));
+            $argumentFormat = "(object) [\n%s\n]";
+            if ($this->hasOptionalArgs($object)) {
+                $argumentFormat = <<<'PHP'
+                    (object) array_filter(
+                        [%%s],
+                        function ($value, $key): bool
+                        {
+                            return !in_array($key, ['%s']) || $value !== null;
+                        },
+                        ARRAY_FILTER_USE_BOTH
+                    )
+PHP;
+                $argumentFormat = sprintf($argumentFormat, implode("', '", $this->getOptionalArgNames($object)));
+            }
+
+            $argumentString = sprintf($argumentFormat, implode("\n", $argSpecs));
         } else {
             $argSpecs = array_map(
                 function (array $argSpec): string {
@@ -158,11 +170,37 @@ PHP;
 
     private function createSupportsBody(object $object): string
     {
-        return sprintf('return $value instanceof %s::class;', $this->getSupportingClassName($object));
+        return sprintf('return $expression instanceof \\%s;', $this->getSupportingClassName($object));
     }
 
     private function getSupportingClassName($object): ?string
     {
         return $this->supportingNamespace . '\\' . ucfirst($object->name) . $this->supportingClassNameSuffix;
+    }
+
+    private function hasOptionalArgs(object $object)
+    {
+        foreach ($object->args as $arg) {
+            if ($arg->isOptional ?? false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function getOptionalArgNames(object $object): array
+    {
+        return array_map(
+            function (object $arg): string {
+                return $arg->name;
+            },
+            array_filter(
+                $object->args,
+                function (object $arg): bool {
+                    return $arg->isOptional ?? false;
+                }
+            )
+        );
     }
 }

@@ -5,15 +5,9 @@ namespace MongoDB\Aggregation\Generator;
 use Laminas\Code\Generator\ClassGenerator;
 use Laminas\Code\Generator\DocBlock\Tag\GenericTag;
 use Laminas\Code\Generator\DocBlockGenerator;
-use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Generator\ParameterGenerator;
 use Laminas\Code\Generator\PropertyGenerator;
-use MongoDB\Aggregation\Expression\ResolvesToExpression;
-use MongoDB\Aggregation\Expression\ResolvesToArrayExpression;
-use MongoDB\Aggregation\Expression\ResolvesToMatchExpression;
-use MongoDB\Aggregation\Expression\ResolvesToSortSpecification;
-use function file_put_contents;
 use function ucfirst;
 use const PHP_EOL;
 
@@ -51,7 +45,7 @@ final class AggregationValueHolderGenerator extends AbstractGenerator
             ->setBody(sprintf('return $this->%1$s;', $arg->name))
             ->setDocBlock(
                 (new DocBlockGenerator())
-                    ->setTag(new GenericTag('return', $this->generateTypeString($arg->type)))
+                    ->setTag(new GenericTag('return', $this->generateTypeString($arg)))
             );
     }
 
@@ -64,20 +58,25 @@ final class AggregationValueHolderGenerator extends AbstractGenerator
         ))
             ->setDocBlock(
                 (new DocBlockGenerator())
-                    ->setTag(new GenericTag('var', $this->generateTypeString($arg->type) . ' $' . $arg->name))
-            );
+                    ->setTag(new GenericTag('var', $this->generateTypeString($arg) . ' $' . $arg->name))
+            )
+            ->omitDefaultValue();
     }
 
     private function createConstructorParameter($arg): ParameterGenerator
     {
-        return new ParameterGenerator($arg->name, null, $arg->defaultValue ?? null);
+        $isOptional = $arg->isOptional ?? false;
+
+        return (new ParameterGenerator($arg->name))
+            ->setDefaultValue($arg->defaultValue ?? null)
+            ->omitDefaultValue(!$isOptional);
     }
 
     private function createConstructorDocblock(array $args): DocBlockGenerator
     {
         $tags = array_map(
             function (object $arg): GenericTag {
-                return new GenericTag('param', $this->generateTypeString($arg->type) . ' $' . $arg->name);
+                return new GenericTag('param', $this->generateTypeString($arg) . ' $' . $arg->name);
             },
             $args
         );
