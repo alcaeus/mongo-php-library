@@ -1,32 +1,49 @@
 <?php
 
-use MongoDB\Aggregation\PipelineOperator;
-use MongoDB\Aggregation\Generator\AggregationClassGenerator;
 use MongoDB\Aggregation\Stage;
+use MongoDB\Aggregation\Generator\AggregationValueHolderGenerator;
 use Symfony\Component\Yaml\Yaml;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $configs = [
     'stages' => [
-        'configFile' => __DIR__ . '/../src/Aggregation/config/stages.yaml',
-        'namespace' => Stage::class,
-        'filePath' => __DIR__ . '/../src/Aggregation/Stage/',
-        'interfaces' => [Stage::class],
+        [
+            'configFile' => __DIR__ . '/../src/Aggregation/config/stages.yaml',
+            // These are simple value holders, overwriting is explicitly wanted
+            'overwrite' => true,
+            'namespace' => Stage::class,
+            'filePath' => __DIR__ . '/../src/Aggregation/Stage/',
+            'interfaces' => [Stage::class],
+        ],
     ],
     'pipeline-operators' => [
-        'configFile' => __DIR__ . '/../src/Aggregation/config/pipeline-operators.yaml',
-        'namespace' => PipelineOperator::class,
-        'filePath' => __DIR__ . '/../src/Aggregation/PipelineOperator/',
+        [
+            'configFile' => __DIR__ . '/../src/Aggregation/config/pipeline-operators.yaml',
+            // These are simple value holders, overwriting is explicitly wanted
+            'overwrite' => true,
+            'namespace' => PipelineOperator::class,
+            'filePath' => __DIR__ . '/../src/Aggregation/PipelineOperator/',
+        ],
     ],
 ];
 
-if (!isset($configs[$argv[1]])) {
-    throw new Exception(sprintf('No config "%s"', $argv[1]));
+$configName = $argv[1] ?? 'stages';
+if (!isset($configs[$configName])) {
+    throw new Exception(sprintf('No config "%s"', $configName));
 }
 
-$config = $configs[$argv[1]];
+$generators = $configs[$configName];
 
-$objects = Yaml::parseFile($config['configFile'], Yaml::PARSE_OBJECT_FOR_MAP);
-$stageGenerator = new AggregationClassGenerator($config['filePath'], $config['namespace'], $config['parentClass'] ?? null, $config['interfaces'] ?? []);
-$stageGenerator->createClassesForObjects($objects, true);
+foreach ($generators as $generatorConfig) {
+    $generatorClass = $generatorConfig['generatorClass'] ?? AggregationValueHolderGenerator::class;
+    $objects = Yaml::parseFile($generatorConfig['configFile'], Yaml::PARSE_OBJECT_FOR_MAP);
+
+    $generator = new $generatorClass(
+        $generatorConfig['filePath'],
+        $generatorConfig['namespace'],
+        $generatorConfig['parentClass'] ?? null,
+        $generatorConfig['interfaces'] ?? []
+    );
+    $generator->createClassesForObjects($objects, $generatorConfig['overwrite'] ?? false);
+}
