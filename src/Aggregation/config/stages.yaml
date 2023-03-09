@@ -1,5 +1,6 @@
 ---
 - name: match
+  className: MatchStage
   args:
     - name: matchExpr
       type: resolvesToMatchExpression

@@ -4,16 +4,20 @@ namespace MongoDB\Aggregation\Stage;
 
 use MongoDB\Aggregation\Stage;
 
-final class Limit extends Stage
+final class Limit implements Stage
 {
-    private int $limit = null;
+    /** @var int $limit */
+    private $limit = null;
 
     public function __construct(int $limit)
     {
         $this->limit = $limit;
     }
 
-    public function getLimit(): int
+    /**
+     * @return int
+     */
+    public function getLimit()
     {
         return $this->limit;
     }

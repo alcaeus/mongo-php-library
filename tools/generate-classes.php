@@ -12,7 +12,7 @@ $configs = [
         'configFile' => __DIR__ . '/../src/Aggregation/config/stages.yaml',
         'namespace' => Stage::class,
         'filePath' => __DIR__ . '/../src/Aggregation/Stage/',
-        'parentClass' => Stage::class,
+        'interfaces' => [Stage::class],
     ],
     'pipeline-operators' => [
         'configFile' => __DIR__ . '/../src/Aggregation/config/pipeline-operators.yaml',
@@ -28,5 +28,5 @@ if (!isset($configs[$argv[1]])) {
 $config = $configs[$argv[1]];
 
 $objects = Yaml::parseFile($config['configFile'], Yaml::PARSE_OBJECT_FOR_MAP);
-$stageGenerator = new AggregationClassGenerator($config['filePath'], $config['namespace'], $config['parentClass'] ?? null);
+$stageGenerator = new AggregationClassGenerator($config['filePath'], $config['namespace'], $config['parentClass'] ?? null, $config['interfaces'] ?? []);
 $stageGenerator->createClassesForObjects($objects, true);

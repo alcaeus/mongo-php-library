@@ -5,16 +5,23 @@ namespace MongoDB\Aggregation\Stage;
 use MongoDB\Aggregation\Expression\ResolvesToSortSpecification;
 use MongoDB\Aggregation\Stage;
 
-final class Sort extends Stage
+final class Sort implements Stage
 {
-    private ResolvesToSortSpecification|array|object $sortSpecificataion = null;
+    /** @var ResolvesToSortSpecification|array|object $sortSpecificataion */
+    private $sortSpecificataion = null;
 
-    public function __construct(ResolvesToSortSpecification|array|object $sortSpecificataion)
+    /**
+     * @param ResolvesToSortSpecification|array|object $sortSpecificataion
+     */
+    public function __construct($sortSpecificataion)
     {
         $this->sortSpecificataion = $sortSpecificataion;
     }
 
-    public function getSortSpecificataion(): ResolvesToSortSpecification|array|object
+    /**
+     * @return ResolvesToSortSpecification|array|object
+     */
+    public function getSortSpecificataion()
     {
         return $this->sortSpecificataion;
     }
