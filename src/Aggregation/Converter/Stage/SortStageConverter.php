@@ -21,7 +21,7 @@ final class SortStageConverter extends AbstractConverter
     protected function convert($value): object
     {
         return (object) [
-            '$sort' => $this->encodeWithLibraryIfSupported($value->getSortSpecification()),
+            '$sort' => (object) $this->encodeWithLibraryIfSupported($value->getSortSpecification()),
         ];
     }
 }
