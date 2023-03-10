@@ -3,11 +3,13 @@
 use MongoDB\Aggregation\Converter\AbstractConverter;
 use MongoDB\Aggregation\Converter;
 use MongoDB\Aggregation\Stage;
-use MongoDB\Aggregation\Converter\Stage as StageConverter;
+use MongoDB\Aggregation\Converter\StageConverter;
 use MongoDB\Aggregation\Converter\PipelineOperator as PipelineOperatorConverter;
+use MongoDB\Aggregation\Converter\QueryOperator as QueryOperatorConverter;
 use MongoDB\Aggregation\Generator\AggregationValueHolderGenerator;
 use MongoDB\Aggregation\Generator\ConverterClassGenerator;
 use MongoDB\Aggregation\PipelineOperator;
+use MongoDB\Aggregation\QueryOperator;
 use Symfony\Component\Yaml\Yaml;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -57,6 +59,29 @@ $configs = [
             'supportingClassNameSuffix' => 'PipelineOperator',
             'libraryNamespace' => Converter::class,
             'libraryClassName' => 'PipelineOperatorConverter',
+        ],
+    ],
+    'query-operators' => [
+        [
+            'configFile' => __DIR__ . '/../src/Aggregation/config/query-operators.yaml',
+            // These are simple value holders, overwriting is explicitly wanted
+            'overwrite' => true,
+            'namespace' => QueryOperator::class,
+            'filePath' => __DIR__ . '/../src/Aggregation/QueryOperator/',
+            'classNameSuffix' => 'QueryOperator',
+        ],
+        [
+            'configFile' => __DIR__ . '/../src/Aggregation/config/query-operators.yaml',
+            'overwrite' => true,
+            'generatorClass' => ConverterClassGenerator::class,
+            'namespace' => QueryOperatorConverter::class,
+            'filePath' => __DIR__ . '/../src/Aggregation/Converter/QueryOperator/',
+            'parentClass' => AbstractConverter::class,
+            'classNameSuffix' => 'QueryOperatorConverter',
+            'supportingNamespace' => QueryOperator::class,
+            'supportingClassNameSuffix' => 'QueryOperator',
+            'libraryNamespace' => Converter::class,
+            'libraryClassName' => 'QueryOperatorConverter',
         ],
     ],
 ];

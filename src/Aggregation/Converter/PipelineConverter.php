@@ -10,9 +10,15 @@ use MongoDB\Codec\KnowsCodecLibrary;
 
 final class PipelineConverter extends AbstractConverter
 {
-    public function __construct($stageConverter = null)
+    public function __construct()
     {
-        $this->attachLibrary($stageConverter ?? new StageConverter());
+        $this->attachLibrary(
+            new CodecLibrary(
+                new StageConverter(),
+                new QueryOperatorConverter(),
+                new PipelineOperatorConverter()
+            )
+        );
     }
 
     /**
