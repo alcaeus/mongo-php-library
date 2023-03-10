@@ -9,7 +9,9 @@ use Laminas\Code\Generator\TypeGenerator;
 use MongoDB\Aggregation\Expression\ResolvesToExpression;
 use MongoDB\Aggregation\Expression\ResolvesToArrayExpression;
 use MongoDB\Aggregation\Expression\ResolvesToMatchExpression;
+use MongoDB\Aggregation\Expression\ResolvesToQuery;
 use MongoDB\Aggregation\Expression\ResolvesToSortSpecification;
+use function dirname;
 use function file_exists;
 use function file_put_contents;
 use function mkdir;
@@ -24,6 +26,7 @@ abstract class AbstractGenerator
         'resolvesToBoolExpression' => [ResolvesToBoolExpression::class, 'array', 'object', 'string', 'bool'],
         'resolvesToMatchExpression' => ['array', 'object', ResolvesToMatchExpression::class],
         'resolvesToNumberExpression' => [ResolvesToBoolExpression::class, 'array', 'object', 'string', 'int', 'float'],
+        'resolvesToQueryOperator' => ['array', 'object', ResolvesToQuery::class],
         'resolvesToSortSpecification' => ['array', 'object', ResolvesToSortSpecification::class],
     ];
 
@@ -102,12 +105,20 @@ abstract class AbstractGenerator
         $fileName = $classGenerator->getName() . '.php';
         $fullName = $filePath . '/' . $fileName;
 
+        $fileGenerator = new FileGenerator();
+        $fileGenerator->setClass($classGenerator);
+
+        $this->writeFileFromGenerator($fullName, $fileGenerator, $overwrite);
+    }
+
+    protected function writeFileFromGenerator(string $fullName, FileGenerator $fileGenerator, bool $overwrite): void
+    {
+        $filePath = dirname($fullName);
+
         if (file_exists($fullName) && !$overwrite) {
             return;
         }
 
-        $fileGenerator = new FileGenerator();
-        $fileGenerator->setClass($classGenerator);
         if ($overwrite) {
             $fileGenerator->setDocBlock(new DocBlockGenerator('THIS FILE IS AUTO-GENERATED. ANY CHANGES WILL BE LOST!'));
         }

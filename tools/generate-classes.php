@@ -2,8 +2,11 @@
 
 use MongoDB\Aggregation\Converter\AbstractConverter;
 use MongoDB\Aggregation\Converter;
+use MongoDB\Aggregation\Factory;
+use MongoDB\Aggregation\FactoryFunctions;
+use MongoDB\Aggregation\Generator\FactoryClassGenerator;
 use MongoDB\Aggregation\Stage;
-use MongoDB\Aggregation\Converter\StageConverter;
+use MongoDB\Aggregation\Converter\Stage as StageConverter;
 use MongoDB\Aggregation\Converter\PipelineOperator as PipelineOperatorConverter;
 use MongoDB\Aggregation\Converter\QueryOperator as QueryOperatorConverter;
 use MongoDB\Aggregation\Generator\AggregationValueHolderGenerator;
@@ -17,8 +20,8 @@ require __DIR__ . '/../vendor/autoload.php';
 $configs = [
     'stages' => [
         [
+            // Stage expression classes
             'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/stages.yaml',
-            // These are simple value holders, overwriting is explicitly wanted
             'overwrite' => true,
             'namespace' => Stage::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Stage/',
@@ -26,9 +29,10 @@ $configs = [
             'classNameSuffix' => 'Stage',
         ],
         [
+            // Stage converters
             'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/stages.yaml',
             'generatorClass' => ConverterClassGenerator::class,
-            'namespace' => StageConverter::class,
+            'namespace' => Converter\Stage::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Converter/Stage/',
             'parentClass' => AbstractConverter::class,
             'classNameSuffix' => 'StageConverter',
@@ -36,6 +40,20 @@ $configs = [
             'supportingClassNameSuffix' => 'Stage',
             'libraryNamespace' => Converter::class,
             'libraryClassName' => 'StageConverter',
+        ],
+        [
+            // Factory
+            'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/stages.yaml',
+            'overwrite' => true,
+            'generatorClass' => FactoryClassGenerator::class,
+            'className' => 'StageFactory',
+            'namespace' => Factory::class,
+            'filePath' => __DIR__ . '/../src/Aggregation/Factory/',
+            'supportingNamespace' => Stage::class,
+            'supportingClassNameSuffix' => 'Stage',
+            'functionNamespace' => FactoryFunctions\Stage::class,
+            'functionFilePath' => __DIR__ .'/../src/Aggregation/FactoryFunctions/',
+
         ],
     ],
     'pipeline-operators' => [
@@ -51,7 +69,7 @@ $configs = [
             'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/pipeline-operators.yaml',
             'overwrite' => true,
             'generatorClass' => ConverterClassGenerator::class,
-            'namespace' => PipelineOperatorConverter::class,
+            'namespace' => Converter\PipelineOperator::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Converter/PipelineOperator/',
             'parentClass' => AbstractConverter::class,
             'classNameSuffix' => 'PipelineOperatorConverter',
@@ -59,6 +77,19 @@ $configs = [
             'supportingClassNameSuffix' => 'PipelineOperator',
             'libraryNamespace' => Converter::class,
             'libraryClassName' => 'PipelineOperatorConverter',
+        ],
+        [
+            // Factory
+            'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/pipeline-operators.yaml',
+            'overwrite' => true,
+            'generatorClass' => FactoryClassGenerator::class,
+            'className' => 'PipelineOperatorFactory',
+            'namespace' => Factory::class,
+            'filePath' => __DIR__ . '/../src/Aggregation/Factory/',
+            'supportingNamespace' => PipelineOperator::class,
+            'supportingClassNameSuffix' => 'PipelineOperator',
+            'functionNamespace' => FactoryFunctions\PipelineOperator::class,
+            'functionFilePath' => __DIR__ .'/../src/Aggregation/FactoryFunctions/',
         ],
     ],
     'query-operators' => [
@@ -74,7 +105,7 @@ $configs = [
             'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/query-operators.yaml',
             'overwrite' => true,
             'generatorClass' => ConverterClassGenerator::class,
-            'namespace' => QueryOperatorConverter::class,
+            'namespace' => Converter\QueryOperator::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Converter/QueryOperator/',
             'parentClass' => AbstractConverter::class,
             'classNameSuffix' => 'QueryOperatorConverter',
@@ -82,6 +113,19 @@ $configs = [
             'supportingClassNameSuffix' => 'QueryOperator',
             'libraryNamespace' => Converter::class,
             'libraryClassName' => 'QueryOperatorConverter',
+        ],
+        [
+            // Factory
+            'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/query-operators.yaml',
+            'overwrite' => true,
+            'generatorClass' => FactoryClassGenerator::class,
+            'className' => 'QueryOperatorFactory',
+            'namespace' => Factory::class,
+            'filePath' => __DIR__ . '/../src/Aggregation/Factory/',
+            'supportingNamespace' => QueryOperator::class,
+            'supportingClassNameSuffix' => 'QueryOperator',
+            'functionNamespace' => FactoryFunctions\QueryOperator::class,
+            'functionFilePath' => __DIR__ .'/../src/Aggregation/FactoryFunctions/',
         ],
     ],
 ];

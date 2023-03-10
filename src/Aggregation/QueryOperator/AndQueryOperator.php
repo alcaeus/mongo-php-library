@@ -9,12 +9,12 @@ namespace MongoDB\Aggregation\QueryOperator;
 final class AndQueryOperator
 {
     /**
-     * @var \resolvesToQueryOperator $query
+     * @var \MongoDB\Aggregation\Expression\ResolvesToQuery|array|object $query
      */
     private $query;
 
     /**
-     * @param \resolvesToQueryOperator $query
+     * @param \MongoDB\Aggregation\Expression\ResolvesToQuery|array|object $query
      */
     public function __construct(... $query)
     {
@@ -22,7 +22,7 @@ final class AndQueryOperator
     }
 
     /**
-     * @return \resolvesToQueryOperator
+     * @return \MongoDB\Aggregation\Expression\ResolvesToQuery|array|object
      */
     public function getQuery()
     {

@@ -30,7 +30,9 @@
     },
     "autoload": {
         "psr-4": { "MongoDB\\": "src/" },
-        "files": [ "src/functions.php" ]
+        "files": [ "src/functions.php",
+            "src/Aggregation/FactoryFunctions/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
