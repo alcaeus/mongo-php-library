@@ -17,7 +17,7 @@ require __DIR__ . '/../vendor/autoload.php';
 $configs = [
     'stages' => [
         [
-            'configFile' => __DIR__ . '/../src/Aggregation/config/stages.yaml',
+            'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/stages.yaml',
             // These are simple value holders, overwriting is explicitly wanted
             'overwrite' => true,
             'namespace' => Stage::class,
@@ -26,7 +26,7 @@ $configs = [
             'classNameSuffix' => 'Stage',
         ],
         [
-            'configFile' => __DIR__ . '/../src/Aggregation/config/stages.yaml',
+            'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/stages.yaml',
             'generatorClass' => ConverterClassGenerator::class,
             'namespace' => StageConverter::class,
             'filePath' => __DIR__ . '/../src/Aggregation/Converter/Stage/',
@@ -40,7 +40,7 @@ $configs = [
     ],
     'pipeline-operators' => [
         [
-            'configFile' => __DIR__ . '/../src/Aggregation/config/pipeline-operators.yaml',
+            'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/pipeline-operators.yaml',
             // These are simple value holders, overwriting is explicitly wanted
             'overwrite' => true,
             'namespace' => PipelineOperator::class,
@@ -48,7 +48,7 @@ $configs = [
             'classNameSuffix' => 'PipelineOperator',
         ],
         [
-            'configFile' => __DIR__ . '/../src/Aggregation/config/pipeline-operators.yaml',
+            'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/pipeline-operators.yaml',
             'overwrite' => true,
             'generatorClass' => ConverterClassGenerator::class,
             'namespace' => PipelineOperatorConverter::class,
@@ -63,7 +63,7 @@ $configs = [
     ],
     'query-operators' => [
         [
-            'configFile' => __DIR__ . '/../src/Aggregation/config/query-operators.yaml',
+            'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/query-operators.yaml',
             // These are simple value holders, overwriting is explicitly wanted
             'overwrite' => true,
             'namespace' => QueryOperator::class,
@@ -71,7 +71,7 @@ $configs = [
             'classNameSuffix' => 'QueryOperator',
         ],
         [
-            'configFile' => __DIR__ . '/../src/Aggregation/config/query-operators.yaml',
+            'configFile' => __DIR__ . '/../src/Aggregation/Generator/config/query-operators.yaml',
             'overwrite' => true,
             'generatorClass' => ConverterClassGenerator::class,
             'namespace' => QueryOperatorConverter::class,
