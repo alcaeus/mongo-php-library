@@ -8,17 +8,35 @@ class Pipeline
 {
     private $stages = [];
 
-    public function __construct(Stage ...$stages)
+    /** @var Stage|Pipeline */
+    public function __construct(...$stages)
     {
-        $this->stages = $stages;
+        array_map(
+            function ($value)
+            {
+                if ($value instanceof Stage) {
+                    $this->appendStage($value);
+                }
+
+                if ($value instanceof Pipeline) {
+                    array_map([$this, 'appendStage'], $value->stages);
+                }
+            },
+            $stages
+        );
     }
 
-    public function append(Stage $stage)
+    public function appendStage(Stage $stage)
     {
         $this->stages[] = $stage;
     }
 
-    public function prepend(Stage $stage)
+    public function getStages(): array
+    {
+        return $this->stages;
+    }
+
+    public function prependStage(Stage $stage)
     {
         array_unshift($this->stages, $stage);
     }
