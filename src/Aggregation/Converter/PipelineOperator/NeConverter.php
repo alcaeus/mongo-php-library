@@ -10,7 +10,7 @@ final class NeConverter extends AbstractConverter
     /**
      * @param mixed $value
      */
-    public function supports($value): bool
+    protected function supports($value): bool
     {
         return $value instanceof Ne;
     }
@@ -18,7 +18,7 @@ final class NeConverter extends AbstractConverter
     /**
      * @param Ne $value
      */
-    public function convert($value): object
+    protected function convert($value): object
     {
         return (object) [
             '$ne' => [

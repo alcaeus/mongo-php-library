@@ -10,7 +10,7 @@ final class MatchStageConverter extends AbstractConverter
     /**
      * @param mixed $value
      */
-    public function supports($value): bool
+    protected function supports($value): bool
     {
         return $value instanceof MatchStage;
     }
@@ -18,7 +18,7 @@ final class MatchStageConverter extends AbstractConverter
     /**
      * @param MatchStage $value
      */
-    public function convert($value): object
+    protected function convert($value): object
     {
         return (object) [
             '$match' => (object) $this->encodeWithLibraryIfSupported($value->getMatchExpr()),

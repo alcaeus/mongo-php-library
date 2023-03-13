@@ -17,7 +17,7 @@ class MatchStageConverterTest extends TestCase
 
         $this->assertEquals(
             (object) ['$match' => (object) ['foo' => 'bar']],
-            $converter->convert($stage)
+            $converter->encode($stage)
         );
     }
 
@@ -31,7 +31,7 @@ class MatchStageConverterTest extends TestCase
     {
         $converter = new MatchStageConverter();
 
-        $this->assertTrue($converter->supports(new MatchStage(['foo' => 'bar'])));
-        $this->assertFalse($converter->supports('foo'));
+        $this->assertTrue($converter->canEncode(new MatchStage(['foo' => 'bar'])));
+        $this->assertFalse($converter->canEncode('foo'));
     }
 }

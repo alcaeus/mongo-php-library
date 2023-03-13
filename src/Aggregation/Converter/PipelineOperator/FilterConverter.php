@@ -12,7 +12,7 @@ final class FilterConverter extends AbstractConverter
     /**
      * @param mixed $value
      */
-    public function supports($value): bool
+    protected function supports($value): bool
     {
         return $value instanceof Filter;
     }
@@ -20,7 +20,7 @@ final class FilterConverter extends AbstractConverter
     /**
      * @param Filter $value
      */
-    public function convert($value): object
+    protected function convert($value): object
     {
         $args = [
             'input' => $this->encodeWithLibraryIfSupported($value->getInput()),

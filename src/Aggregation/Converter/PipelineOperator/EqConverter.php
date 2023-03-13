@@ -10,7 +10,7 @@ final class EqConverter extends AbstractConverter
     /**
      * @param mixed $value
      */
-    public function supports($value): bool
+    protected function supports($value): bool
     {
         return $value instanceof Eq;
     }
@@ -18,7 +18,7 @@ final class EqConverter extends AbstractConverter
     /**
      * @param Eq $value
      */
-    public function convert($value): object
+    protected function convert($value): object
     {
         return (object) [
             '$eq' => [

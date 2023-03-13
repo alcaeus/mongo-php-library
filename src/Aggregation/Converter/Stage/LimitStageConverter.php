@@ -10,7 +10,7 @@ final class LimitStageConverter extends AbstractConverter
     /**
      * @param mixed $value
      */
-    public function supports($value): bool
+    protected function supports($value): bool
     {
         return $value instanceof LimitStage;
     }
@@ -18,7 +18,7 @@ final class LimitStageConverter extends AbstractConverter
     /**
      * @param LimitStage $value
      */
-    public function convert($value): object
+    protected function convert($value): object
     {
         return (object) [
             '$limit' => $this->encodeWithLibraryIfSupported($value->getLimit()),

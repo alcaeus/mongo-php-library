@@ -10,7 +10,7 @@ final class SortStageConverter extends AbstractConverter
     /**
      * @param mixed $value
      */
-    public function supports($value): bool
+    protected function supports($value): bool
     {
         return $value instanceof SortStage;
     }
@@ -18,7 +18,7 @@ final class SortStageConverter extends AbstractConverter
     /**
      * @param SortStage $value
      */
-    public function convert($value): object
+    protected function convert($value): object
     {
         return (object) [
             '$sort' => $this->encodeWithLibraryIfSupported($value->getSortSpecification()),

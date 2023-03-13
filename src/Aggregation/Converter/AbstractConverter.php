@@ -2,13 +2,13 @@
 
 namespace MongoDB\Aggregation\Converter;
 
-use MongoDB\Codec\Codec;
 use MongoDB\Codec\CodecLibrary;
+use MongoDB\Codec\Encoder;
 use MongoDB\Codec\KnowsCodecLibrary;
 use MongoDB\Exception\UnexpectedValueException;
 use function get_debug_type;
 
-abstract class AbstractConverter implements Codec, KnowsCodecLibrary
+abstract class AbstractConverter implements Encoder, KnowsCodecLibrary
 {
     /** @var CodecLibrary|null */
     private $library = null;
@@ -27,19 +27,9 @@ abstract class AbstractConverter implements Codec, KnowsCodecLibrary
         $this->library = $library;
     }
 
-    final public function canDecode($value): bool
-    {
-        return false;
-    }
-
     final public function canEncode($value): bool
     {
         return $this->supports($value);
-    }
-
-    final public function decode($value)
-    {
-        throw new UnexpectedValueException(sprintf('"%s" can only encode, not decode', static::class));
     }
 
     final public function encode($value)
