@@ -12,7 +12,7 @@ class StageFactory
      * @param \MongoDB\Aggregation\Expression\ResolvesToMatchExpression|array|object
      * $matchExpr
      */
-    public static function match($matchExpr) : \MongoDB\Aggregation\Stage\MatchStage
+    public static function match(... $matchExpr) : \MongoDB\Aggregation\Stage\MatchStage
     {
         return new \MongoDB\Aggregation\Stage\MatchStage(...func_get_args());
     }

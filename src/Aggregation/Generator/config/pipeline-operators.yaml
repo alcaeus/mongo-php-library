@@ -9,6 +9,18 @@
       type: resolvesToExpression
     - name: expression2
       type: resolvesToExpression
+- name: gt
+  args:
+    - name: expression1
+      type: resolvesToExpression
+    - name: expression2
+      type: resolvesToExpression
+- name: lt
+  args:
+    - name: expression1
+      type: resolvesToExpression
+    - name: expression2
+      type: resolvesToExpression
 - name: ne
   args:
     - name: expression1

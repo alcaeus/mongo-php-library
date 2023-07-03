@@ -10,7 +10,7 @@ namespace MongoDB\Aggregation\FactoryFunctions\Stage;
      * @param \MongoDB\Aggregation\Expression\ResolvesToMatchExpression|array|object
      * $matchExpr
      */
-    function matchStage($matchExpr) : \MongoDB\Aggregation\Stage\MatchStage
+    function matchStage(... $matchExpr) : \MongoDB\Aggregation\Stage\MatchStage
     {
         return new \MongoDB\Aggregation\Stage\MatchStage(...func_get_args());
     }

@@ -30,6 +30,17 @@ final class AggregationValueHolderGenerator extends AbstractGenerator
                 ->addMethodFromGenerator($this->createArgGetter($arg));
             $constructorGenerator->setParameter($this->createConstructorParameter($arg));
 
+            if ($arg->isVariadic ?? false) {
+                $template = <<<'CODE'
+if (array_keys($%1$s) === [0]) {
+    $%1$s = $%1$s[0];
+}
+
+CODE;
+
+                $body[] = sprintf($template, $arg->name);
+            }
+
             $body[] = sprintf('$this->%1$s = $%1$s;', $arg->name);
         }
 

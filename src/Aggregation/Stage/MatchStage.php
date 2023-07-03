@@ -18,8 +18,12 @@ final class MatchStage implements \MongoDB\Aggregation\Stage
      * @param \MongoDB\Aggregation\Expression\ResolvesToMatchExpression|array|object
      * $matchExpr
      */
-    public function __construct($matchExpr)
+    public function __construct(... $matchExpr)
     {
+        if (array_keys($matchExpr) === [0]) {
+            $matchExpr = $matchExpr[0];
+        }
+
         $this->matchExpr = $matchExpr;
     }
 

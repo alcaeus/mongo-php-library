@@ -39,6 +39,32 @@ class PipelineOperatorFactory
      * \MongoDB\Aggregation\Expression\ResolvesToExpression|bool|int|float|string|array|object|null
      * $expression2
      */
+    public static function gt($expression1, $expression2) : \MongoDB\Aggregation\PipelineOperator\GtPipelineOperator
+    {
+        return new \MongoDB\Aggregation\PipelineOperator\GtPipelineOperator(...func_get_args());
+    }
+
+    /**
+     * @param
+     * \MongoDB\Aggregation\Expression\ResolvesToExpression|bool|int|float|string|array|object|null
+     * $expression1
+     * @param
+     * \MongoDB\Aggregation\Expression\ResolvesToExpression|bool|int|float|string|array|object|null
+     * $expression2
+     */
+    public static function lt($expression1, $expression2) : \MongoDB\Aggregation\PipelineOperator\LtPipelineOperator
+    {
+        return new \MongoDB\Aggregation\PipelineOperator\LtPipelineOperator(...func_get_args());
+    }
+
+    /**
+     * @param
+     * \MongoDB\Aggregation\Expression\ResolvesToExpression|bool|int|float|string|array|object|null
+     * $expression1
+     * @param
+     * \MongoDB\Aggregation\Expression\ResolvesToExpression|bool|int|float|string|array|object|null
+     * $expression2
+     */
     public static function ne($expression1, $expression2) : \MongoDB\Aggregation\PipelineOperator\NePipelineOperator
     {
         return new \MongoDB\Aggregation\PipelineOperator\NePipelineOperator(...func_get_args());

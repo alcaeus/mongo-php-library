@@ -3,6 +3,7 @@
   args:
     - name: matchExpr
       type: resolvesToMatchExpression
+      isVariadic: true
 
 - name: sort
   args:
