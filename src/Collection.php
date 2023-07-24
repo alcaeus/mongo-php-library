@@ -17,8 +17,10 @@
 
 namespace MongoDB;
 
+use Iterator;
 use MongoDB\BSON\JavascriptInterface;
-use MongoDB\Driver\Cursor;
+use MongoDB\Codec\DocumentCodec;
+use MongoDB\Driver\CursorInterface;
 use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadConcern;
@@ -62,6 +64,7 @@ use MongoDB\Operation\Watch;
 
 use function array_diff_key;
 use function array_intersect_key;
+use function array_key_exists;
 use function current;
 use function is_array;
 use function strlen;
@@ -75,6 +78,8 @@ class Collection
     ];
 
     private const WIRE_VERSION_FOR_READ_CONCERN_WITH_WRITE_STAGE = 8;
+
+    private ?DocumentCodec $codec = null;
 
     private string $collectionName;
 
@@ -97,6 +102,9 @@ class Collection
      * CRUD (i.e. create, read, update, and delete) and index management.
      *
      * Supported options:
+     *
+     *  * codec (MongoDB\Codec\DocumentCodec): Codec used to decode documents
+     *    from BSON to PHP objects.
      *
      *  * readConcern (MongoDB\Driver\ReadConcern): The default read concern to
      *    use for collection operations. Defaults to the Manager's read concern.
@@ -127,6 +135,10 @@ class Collection
             throw new InvalidArgumentException('$collectionName is invalid: ' . $collectionName);
         }
 
+        if (isset($options['codec']) && ! $options['codec'] instanceof DocumentCodec) {
+            throw InvalidArgumentException::invalidType('"codec" option', $options['codec'], DocumentCodec::class);
+        }
+
         if (isset($options['readConcern']) && ! $options['readConcern'] instanceof ReadConcern) {
             throw InvalidArgumentException::invalidType('"readConcern" option', $options['readConcern'], ReadConcern::class);
         }
@@ -146,6 +158,8 @@ class Collection
         $this->manager = $manager;
         $this->databaseName = $databaseName;
         $this->collectionName = $collectionName;
+
+        $this->codec = $options['codec'] ?? null;
         $this->readConcern = $options['readConcern'] ?? $this->manager->getReadConcern();
         $this->readPreference = $options['readPreference'] ?? $this->manager->getReadPreference();
         $this->typeMap = $options['typeMap'] ?? self::DEFAULT_TYPE_MAP;
@@ -161,6 +175,7 @@ class Collection
     public function __debugInfo()
     {
         return [
+            'codec' => $this->codec,
             'collectionName' => $this->collectionName,
             'databaseName' => $this->databaseName,
             'manager' => $this->manager,
@@ -188,7 +203,7 @@ class Collection
      * @see Aggregate::__construct() for supported options
      * @param array $pipeline Aggregation pipeline
      * @param array $options  Command options
-     * @return Cursor
+     * @return CursorInterface&Iterator
      * @throws UnexpectedValueException if the command response was malformed
      * @throws UnsupportedException if options are not supported by the selected server
      * @throws InvalidArgumentException for parameter/option parsing errors
@@ -219,6 +234,10 @@ class Collection
             $options['readConcern'] = $this->readConcern;
         }
 
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         if (! isset($options['typeMap'])) {
             $options['typeMap'] = $this->typeMap;
         }
@@ -245,6 +264,10 @@ class Collection
      */
     public function bulkWrite(array $operations, array $options = [])
     {
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         if (! isset($options['writeConcern']) && ! is_in_transaction($options)) {
             $options['writeConcern'] = $this->writeConcern;
         }
@@ -618,13 +641,17 @@ class Collection
      * @see https://mongodb.com/docs/manual/crud/#read-operations
      * @param array|object $filter  Query by which to filter documents
      * @param array        $options Additional options
-     * @return Cursor
+     * @return CursorInterface&Iterator
      * @throws UnsupportedException if options are not supported by the selected server
      * @throws InvalidArgumentException for parameter/option parsing errors
      * @throws DriverRuntimeException for other driver errors (e.g. connection errors)
      */
     public function find($filter = [], array $options = [])
     {
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         if (! isset($options['readPreference']) && ! is_in_transaction($options)) {
             $options['readPreference'] = $this->readPreference;
         }
@@ -658,6 +685,10 @@ class Collection
      */
     public function findOne($filter = [], array $options = [])
     {
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         if (! isset($options['readPreference']) && ! is_in_transaction($options)) {
             $options['readPreference'] = $this->readPreference;
         }
@@ -694,6 +725,10 @@ class Collection
      */
     public function findOneAndDelete($filter, array $options = [])
     {
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         $server = select_server($this->manager, $options);
 
         if (! isset($options['writeConcern']) && ! is_in_transaction($options)) {
@@ -731,6 +766,10 @@ class Collection
      */
     public function findOneAndReplace($filter, $replacement, array $options = [])
     {
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         $server = select_server($this->manager, $options);
 
         if (! isset($options['writeConcern']) && ! is_in_transaction($options)) {
@@ -768,6 +807,10 @@ class Collection
      */
     public function findOneAndUpdate($filter, $update, array $options = [])
     {
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         $server = select_server($this->manager, $options);
 
         if (! isset($options['writeConcern']) && ! is_in_transaction($options)) {
@@ -879,6 +922,10 @@ class Collection
      */
     public function insertMany(array $documents, array $options = [])
     {
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         if (! isset($options['writeConcern']) && ! is_in_transaction($options)) {
             $options['writeConcern'] = $this->writeConcern;
         }
@@ -902,6 +949,10 @@ class Collection
      */
     public function insertOne($document, array $options = [])
     {
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         if (! isset($options['writeConcern']) && ! is_in_transaction($options)) {
             $options['writeConcern'] = $this->writeConcern;
         }
@@ -1028,6 +1079,10 @@ class Collection
      */
     public function replaceOne($filter, $replacement, array $options = [])
     {
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         if (! isset($options['writeConcern']) && ! is_in_transaction($options)) {
             $options['writeConcern'] = $this->writeConcern;
         }
@@ -1099,6 +1154,10 @@ class Collection
      */
     public function watch(array $pipeline = [], array $options = [])
     {
+        if (! array_key_exists('codec', $options)) {
+            $options['codec'] = $this->codec;
+        }
+
         if (! isset($options['readPreference']) && ! is_in_transaction($options)) {
             $options['readPreference'] = $this->readPreference;
         }
@@ -1136,6 +1195,7 @@ class Collection
     public function withOptions(array $options = [])
     {
         $options += [
+            'codec' => $this->codec,
             'readConcern' => $this->readConcern,
             'readPreference' => $this->readPreference,
             'typeMap' => $this->typeMap,

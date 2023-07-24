@@ -116,6 +116,7 @@
       <code><![CDATA[$reply->cursor->nextBatch]]></code>
     </MixedArgument>
     <MixedAssignment>
+      <code>$resumeToken</code>
       <code><![CDATA[$this->postBatchResumeToken]]></code>
     </MixedAssignment>
     <MixedPropertyFetch>
@@ -245,6 +246,7 @@
   </file>
   <file src="src/Operation/Aggregate.php">
     <MixedArgument>
+      <code><![CDATA[$this->options['codec']]]></code>
       <code><![CDATA[$this->options['typeMap']]]></code>
     </MixedArgument>
     <MixedAssignment>
@@ -273,6 +275,7 @@
       <code>$args[1]</code>
       <code>$args[1]</code>
       <code>$args[2]</code>
+      <code>$args[2]</code>
     </MixedArgument>
     <MixedArrayAccess>
       <code>$args[0]</code>
@@ -280,6 +283,8 @@
       <code>$args[0]</code>
       <code>$args[0]</code>
       <code>$args[0]</code>
+      <code>$args[0]</code>
+      <code>$args[0]</code>
       <code>$args[1]</code>
       <code>$args[1]</code>
       <code>$args[1]</code>
@@ -294,6 +299,9 @@
       <code>$args[1]</code>
       <code>$args[1]</code>
       <code>$args[1]</code>
+      <code>$args[1]</code>
+      <code>$args[1]</code>
+      <code>$args[2]</code>
       <code>$args[2]</code>
       <code>$args[2]</code>
       <code>$args[2]</code>
@@ -337,6 +345,8 @@
       <code><![CDATA[$options['writeConcern']]]></code>
     </MixedAssignment>
     <MixedMethodCall>
+      <code>encodeIfSupported</code>
+      <code>encodeIfSupported</code>
       <code>isInTransaction</code>
     </MixedMethodCall>
     <MixedOperand>
@@ -476,6 +486,7 @@
   </file>
   <file src="src/Operation/Find.php">
     <MixedArgument>
+      <code><![CDATA[$this->options['codec']]]></code>
       <code><![CDATA[$this->options['typeMap']]]></code>
     </MixedArgument>
     <MixedArrayAccess>
@@ -507,11 +518,24 @@
       <code>array|object|null</code>
     </MixedInferredReturnType>
     <MixedMethodCall>
+      <code>decodeIfSupported</code>
       <code>isInTransaction</code>
     </MixedMethodCall>
     <MixedReturnStatement>
       <code><![CDATA[is_object($result) ? ($result->value ?? null) : null]]></code>
       <code><![CDATA[is_object($result) ? ($result->value ?? null) : null]]></code>
+    </MixedReturnStatement>
+  </file>
+  <file src="src/Operation/FindOne.php">
+    <MixedAssignment>
+      <code>$document</code>
+    </MixedAssignment>
+    <MixedInferredReturnType>
+      <code>array|object|null</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement>
+      <code>$document === false ? null : $document</code>
+      <code>$document === false ? null : $document</code>
     </MixedReturnStatement>
   </file>
   <file src="src/Operation/FindOneAndDelete.php">
@@ -523,6 +547,9 @@
     <MixedAssignment>
       <code><![CDATA[$options['fields']]]></code>
     </MixedAssignment>
+    <RedundantConditionGivenDocblockType>
+      <code>is_object($replacementDocument)</code>
+    </RedundantConditionGivenDocblockType>
   </file>
   <file src="src/Operation/FindOneAndUpdate.php">
     <MixedAssignment>
@@ -537,6 +564,7 @@
       <code><![CDATA[$options['writeConcern']]]></code>
     </MixedAssignment>
     <MixedMethodCall>
+      <code>encodeIfSupported</code>
       <code>isInTransaction</code>
     </MixedMethodCall>
   </file>
@@ -548,6 +576,7 @@
       <code><![CDATA[$options['writeConcern']]]></code>
     </MixedAssignment>
     <MixedMethodCall>
+      <code>encodeIfSupported</code>
       <code>isInTransaction</code>
     </MixedMethodCall>
   </file>
@@ -596,6 +625,11 @@
     <MixedMethodCall>
       <code>isInTransaction</code>
     </MixedMethodCall>
+  </file>
+  <file src="src/Operation/ReplaceOne.php">
+    <RedundantConditionGivenDocblockType>
+      <code>is_object($replacementDocument)</code>
+    </RedundantConditionGivenDocblockType>
   </file>
   <file src="src/Operation/Update.php">
     <MixedArgument>
