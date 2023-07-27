@@ -20,22 +20,12 @@ namespace MongoDB\Operation;
 use MongoDB\Driver\Command;
 use MongoDB\Driver\Cursor;
 use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
-use MongoDB\Driver\ReadConcern;
-use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\Server;
-use MongoDB\Driver\Session;
-use MongoDB\Driver\WriteConcern;
 use MongoDB\Exception\InvalidArgumentException;
 use MongoDB\Exception\UnexpectedValueException;
 use MongoDB\Exception\UnsupportedException;
-use stdClass;
+use MongoDB\Options\AggregateOptions;
 
-use function is_array;
-use function is_bool;
-use function is_integer;
-use function is_object;
-use function is_string;
-use function MongoDB\is_document;
 use function MongoDB\is_last_pipeline_operator_write;
 use function MongoDB\is_pipeline;
 
@@ -53,7 +43,7 @@ class Aggregate implements Executable, Explainable
 
     private array $pipeline;
 
-    private array $options;
+    private AggregateOptions $options;
 
     private bool $isWrite;
 
@@ -113,100 +103,33 @@ class Aggregate implements Executable, Explainable
      * Note: Collection-agnostic commands (e.g. $currentOp) may be executed by
      * specifying null for the collection name.
      *
-     * @param string      $databaseName   Database name
-     * @param string|null $collectionName Collection name
-     * @param array       $pipeline       Aggregation pipeline
-     * @param array       $options        Command options
+     * @param string                 $databaseName   Database name
+     * @param string|null            $collectionName Collection name
+     * @param array                  $pipeline       Aggregation pipeline
+     * @param array|AggregateOptions $options        Command options
      * @throws InvalidArgumentException for parameter/option parsing errors
      */
-    public function __construct(string $databaseName, ?string $collectionName, array $pipeline, array $options = [])
+    public function __construct(string $databaseName, ?string $collectionName, array $pipeline, $options = [])
     {
         if (! is_pipeline($pipeline, true /* allowEmpty */)) {
             throw new InvalidArgumentException('$pipeline is not a valid aggregation pipeline');
         }
 
-        if (isset($options['allowDiskUse']) && ! is_bool($options['allowDiskUse'])) {
-            throw InvalidArgumentException::invalidType('"allowDiskUse" option', $options['allowDiskUse'], 'boolean');
+        if (! $options instanceof AggregateOptions) {
+            $options = AggregateOptions::fromArray($options);
         }
 
-        if (isset($options['batchSize']) && ! is_integer($options['batchSize'])) {
-            throw InvalidArgumentException::invalidType('"batchSize" option', $options['batchSize'], 'integer');
-        }
-
-        if (isset($options['bypassDocumentValidation']) && ! is_bool($options['bypassDocumentValidation'])) {
-            throw InvalidArgumentException::invalidType('"bypassDocumentValidation" option', $options['bypassDocumentValidation'], 'boolean');
-        }
-
-        if (isset($options['collation']) && ! is_document($options['collation'])) {
-            throw InvalidArgumentException::expectedDocumentType('"collation" option', $options['collation']);
-        }
-
-        if (isset($options['explain']) && ! is_bool($options['explain'])) {
-            throw InvalidArgumentException::invalidType('"explain" option', $options['explain'], 'boolean');
-        }
-
-        if (isset($options['hint']) && ! is_string($options['hint']) && ! is_array($options['hint']) && ! is_object($options['hint'])) {
-            throw InvalidArgumentException::invalidType('"hint" option', $options['hint'], 'string or array or object');
-        }
-
-        if (isset($options['let']) && ! is_document($options['let'])) {
-            throw InvalidArgumentException::expectedDocumentType('"let" option', $options['let']);
-        }
-
-        if (isset($options['maxAwaitTimeMS']) && ! is_integer($options['maxAwaitTimeMS'])) {
-            throw InvalidArgumentException::invalidType('"maxAwaitTimeMS" option', $options['maxAwaitTimeMS'], 'integer');
-        }
-
-        if (isset($options['maxTimeMS']) && ! is_integer($options['maxTimeMS'])) {
-            throw InvalidArgumentException::invalidType('"maxTimeMS" option', $options['maxTimeMS'], 'integer');
-        }
-
-        if (isset($options['readConcern']) && ! $options['readConcern'] instanceof ReadConcern) {
-            throw InvalidArgumentException::invalidType('"readConcern" option', $options['readConcern'], ReadConcern::class);
-        }
-
-        if (isset($options['readPreference']) && ! $options['readPreference'] instanceof ReadPreference) {
-            throw InvalidArgumentException::invalidType('"readPreference" option', $options['readPreference'], ReadPreference::class);
-        }
-
-        if (isset($options['session']) && ! $options['session'] instanceof Session) {
-            throw InvalidArgumentException::invalidType('"session" option', $options['session'], Session::class);
-        }
-
-        if (isset($options['typeMap']) && ! is_array($options['typeMap'])) {
-            throw InvalidArgumentException::invalidType('"typeMap" option', $options['typeMap'], 'array');
-        }
-
-        if (isset($options['writeConcern']) && ! $options['writeConcern'] instanceof WriteConcern) {
-            throw InvalidArgumentException::invalidType('"writeConcern" option', $options['writeConcern'], WriteConcern::class);
-        }
-
-        if (isset($options['bypassDocumentValidation']) && ! $options['bypassDocumentValidation']) {
-            unset($options['bypassDocumentValidation']);
-        }
-
-        if (isset($options['readConcern']) && $options['readConcern']->isDefault()) {
-            unset($options['readConcern']);
-        }
-
-        if (isset($options['writeConcern']) && $options['writeConcern']->isDefault()) {
-            unset($options['writeConcern']);
-        }
-
-        $this->isWrite = is_last_pipeline_operator_write($pipeline) && ! ($options['explain'] ?? false);
+        $this->isWrite = is_last_pipeline_operator_write($pipeline) && ! $options->isExplain();
 
         if ($this->isWrite) {
-            /* Ignore batchSize for writes, since no documents are returned and
-             * a batchSize of zero could prevent the pipeline from executing. */
-            unset($options['batchSize']);
+            $this->options = $options->withBatchSize(null);
         } else {
-            unset($options['writeConcern']);
+            $this->options = $options->withWriteConcern(null);
         }
 
         $this->databaseName = $databaseName;
         $this->collectionName = $collectionName;
         $this->pipeline = $pipeline;
-        $this->options = $options;
     }
 
     /**
@@ -220,26 +143,16 @@ class Aggregate implements Executable, Explainable
      */
     public function execute(Server $server)
     {
-        $inTransaction = isset($this->options['session']) && $this->options['session']->isInTransaction();
-        if ($inTransaction) {
-            if (isset($this->options['readConcern'])) {
-                throw UnsupportedException::readConcernNotSupportedInTransaction();
-            }
-
-            if (isset($this->options['writeConcern'])) {
-                throw UnsupportedException::writeConcernNotSupportedInTransaction();
-            }
-        }
-
         $command = new Command(
             $this->createCommandDocument(),
-            $this->createCommandOptions(),
+            $this->options->createCommandOptions(),
         );
 
         $cursor = $this->executeCommand($server, $command);
 
-        if (isset($this->options['typeMap'])) {
-            $cursor->setTypeMap($this->options['typeMap']);
+        $typeMap = $this->options->getTypeMap();
+        if ($typeMap) {
+            $cursor->setTypeMap($typeMap);
         }
 
         return $cursor;
@@ -255,9 +168,8 @@ class Aggregate implements Executable, Explainable
     {
         $cmd = $this->createCommandDocument();
 
-        // Read concern can change the query plan
-        if (isset($this->options['readConcern'])) {
-            $cmd['readConcern'] = $this->options['readConcern'];
+        if ($this->options->getReadConcern()) {
+            $cmd['readConcern'] = $this->options->getReadConcern();
         }
 
         return $cmd;
@@ -273,38 +185,7 @@ class Aggregate implements Executable, Explainable
             'pipeline' => $this->pipeline,
         ];
 
-        foreach (['allowDiskUse', 'bypassDocumentValidation', 'comment', 'explain', 'maxTimeMS'] as $option) {
-            if (isset($this->options[$option])) {
-                $cmd[$option] = $this->options[$option];
-            }
-        }
-
-        foreach (['collation', 'let'] as $option) {
-            if (isset($this->options[$option])) {
-                $cmd[$option] = (object) $this->options[$option];
-            }
-        }
-
-        if (isset($this->options['hint'])) {
-            $cmd['hint'] = is_array($this->options['hint']) ? (object) $this->options['hint'] : $this->options['hint'];
-        }
-
-        $cmd['cursor'] = isset($this->options['batchSize'])
-            ? ['batchSize' => $this->options['batchSize']]
-            : new stdClass();
-
-        return $cmd;
-    }
-
-    private function createCommandOptions(): array
-    {
-        $cmdOptions = [];
-
-        if (isset($this->options['maxAwaitTimeMS'])) {
-            $cmdOptions['maxAwaitTimeMS'] = $this->options['maxAwaitTimeMS'];
-        }
-
-        return $cmdOptions;
+        return $this->options->appendAggregateOptions($cmd);
     }
 
     /**
@@ -316,13 +197,7 @@ class Aggregate implements Executable, Explainable
      */
     private function executeCommand(Server $server, Command $command): Cursor
     {
-        $options = [];
-
-        foreach (['readConcern', 'readPreference', 'session', 'writeConcern'] as $option) {
-            if (isset($this->options[$option])) {
-                $options[$option] = $this->options[$option];
-            }
-        }
+        $options = $this->options->createCommandExecutionOptions();
 
         if (! $this->isWrite) {
             return $server->executeReadCommand($this->databaseName, $command, $options);

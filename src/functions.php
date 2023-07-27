@@ -31,6 +31,8 @@ use MongoDB\Exception\InvalidArgumentException;
 use MongoDB\Exception\RuntimeException;
 use MongoDB\Operation\ListCollections;
 use MongoDB\Operation\WithTransaction;
+use MongoDB\Options\SupportsReadPreference;
+use MongoDB\Options\SupportsSession;
 use ReflectionClass;
 use ReflectionException;
 
@@ -517,9 +519,19 @@ function with_transaction(Session $session, callable $callback, array $transacti
  * Returns the session option if it is set and valid.
  *
  * @internal
+ *
+ * @param array|SupportsSession $options
  */
-function extract_session_from_options(array $options): ?Session
+function extract_session_from_options($options): ?Session
 {
+    if ($options instanceof SupportsSession) {
+        return $options->getSession();
+    }
+
+    if (! is_array($options)) {
+        return null;
+    }
+
     if (! isset($options['session']) || ! $options['session'] instanceof Session) {
         return null;
     }
@@ -531,9 +543,19 @@ function extract_session_from_options(array $options): ?Session
  * Returns the readPreference option if it is set and valid.
  *
  * @internal
+ *
+ * @param array|SupportsReadPreference $options
  */
-function extract_read_preference_from_options(array $options): ?ReadPreference
+function extract_read_preference_from_options($options): ?ReadPreference
 {
+    if ($options instanceof SupportsReadPreference) {
+        return $options->getReadPreference();
+    }
+
+    if (! is_array($options)) {
+        return null;
+    }
+
     if (! isset($options['readPreference']) || ! $options['readPreference'] instanceof ReadPreference) {
         return null;
     }
@@ -546,8 +568,10 @@ function extract_read_preference_from_options(array $options): ?ReadPreference
  * (if given)
  *
  * @internal
+ *
+ * @param array|SupportsReadPreference|SupportsSession $options
  */
-function select_server(Manager $manager, array $options): Server
+function select_server(Manager $manager, $options): Server
 {
     $session = extract_session_from_options($options);
     $server = $session instanceof Session ? $session->getServer() : null;
@@ -569,10 +593,12 @@ function select_server(Manager $manager, array $options): Server
  * $options parameter may be modified by reference if a primary read preference
  * must be forced due to the existence of pre-5.0 servers in the topology.
  *
+ * @param array|SupportsReadPreference|SupportsSession $options
+ *
  * @internal
  * @see https://github.com/mongodb/specifications/blob/master/source/crud/crud.rst#aggregation-pipelines-with-write-stages
  */
-function select_server_for_aggregate_write_stage(Manager $manager, array &$options): Server
+function select_server_for_aggregate_write_stage(Manager $manager, $options): Server
 {
     $readPreference = extract_read_preference_from_options($options);
 
@@ -594,9 +620,13 @@ function select_server_for_aggregate_write_stage(Manager $manager, array &$optio
      * preference and repeat server selection if it previously failed or
      * selected a secondary. */
     if (! all_servers_support_write_stage_on_secondary($manager->getServers())) {
-        $options['readPreference'] = new ReadPreference(ReadPreference::PRIMARY);
-
         if ($server === null || $server->isSecondary()) {
+            if ($options instanceof SupportsReadPreference) {
+                $options = $options->withReadPreference(new ReadPreference(ReadPreference::PRIMARY));
+            } elseif (is_array($options)) {
+                $options['readPreference'] = new ReadPreference(ReadPreference::PRIMARY);
+            }
+
             return select_server($manager, $options);
         }
     }

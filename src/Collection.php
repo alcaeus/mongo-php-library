@@ -59,6 +59,7 @@ use MongoDB\Operation\ReplaceOne;
 use MongoDB\Operation\UpdateMany;
 use MongoDB\Operation\UpdateOne;
 use MongoDB\Operation\Watch;
+use MongoDB\Options\AggregateOptions;
 
 use function array_diff_key;
 use function array_intersect_key;
@@ -186,45 +187,41 @@ class Collection
      * Executes an aggregation framework pipeline on the collection.
      *
      * @see Aggregate::__construct() for supported options
-     * @param array $pipeline Aggregation pipeline
-     * @param array $options  Command options
+     * @param array                  $pipeline Aggregation pipeline
+     * @param array|AggregateOptions $options  Command options
      * @return Cursor
      * @throws UnexpectedValueException if the command response was malformed
      * @throws UnsupportedException if options are not supported by the selected server
      * @throws InvalidArgumentException for parameter/option parsing errors
      * @throws DriverRuntimeException for other driver errors (e.g. connection errors)
      */
-    public function aggregate(array $pipeline, array $options = [])
+    public function aggregate(array $pipeline, $options = [])
     {
         $hasWriteStage = is_last_pipeline_operator_write($pipeline);
 
-        if (! isset($options['readPreference']) && ! is_in_transaction($options)) {
-            $options['readPreference'] = $this->readPreference;
+        if (! $options instanceof AggregateOptions) {
+            $options = AggregateOptions::fromArray($options);
         }
 
         $server = $hasWriteStage
             ? select_server_for_aggregate_write_stage($this->manager, $options)
             : select_server($this->manager, $options);
 
-        /* MongoDB 4.2 and later supports a read concern when an $out stage is
-         * being used, but earlier versions do not.
-         *
-         * A read concern is also not compatible with transactions.
-         */
-        if (
-            ! isset($options['readConcern']) &&
-            ! is_in_transaction($options) &&
-            ( ! $hasWriteStage || server_supports_feature($server, self::WIRE_VERSION_FOR_READ_CONCERN_WITH_WRITE_STAGE))
-        ) {
-            $options['readConcern'] = $this->readConcern;
-        }
+        $options = $options->withTypeMap($this->typeMap, false);
 
-        if (! isset($options['typeMap'])) {
-            $options['typeMap'] = $this->typeMap;
-        }
+        if (! $options->isInTransaction()) {
+            if ($hasWriteStage) {
+                $options = $options->withWriteConcern($this->writeConcern, false);
 
-        if ($hasWriteStage && ! isset($options['writeConcern']) && ! is_in_transaction($options)) {
-            $options['writeConcern'] = $this->writeConcern;
+                /* MongoDB 4.2 and later supports a read concern when an $out stage is
+                 * being used, but earlier versions do not.
+                 */
+                if (server_supports_feature($server, self::WIRE_VERSION_FOR_READ_CONCERN_WITH_WRITE_STAGE)) {
+                    $options = $options->withReadConcern($this->readConcern, false);
+                }
+            } else {
+                $options = $options->withReadConcern($this->readConcern, false);
+            }
         }
 
         $operation = new Aggregate($this->databaseName, $this->collectionName, $pipeline, $options);
