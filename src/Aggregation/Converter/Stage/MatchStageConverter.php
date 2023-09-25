@@ -14,7 +14,7 @@ final class MatchStageConverter extends AbstractConverter
 {
     public function __construct()
     {
-        $this->attachLibrary(new CodecLibrary(
+        $this->attachCodecLibrary(new CodecLibrary(
             new GtQueryOperatorConverter(),
             new LtQueryOperatorConverter(),
         ));
