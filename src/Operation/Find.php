@@ -19,9 +19,9 @@ namespace MongoDB\Operation;
 
 use Iterator;
 use MongoDB\Codec\DocumentCodec;
+use MongoDB\Driver\Command;
 use MongoDB\Driver\CursorInterface;
 use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
-use MongoDB\Driver\Query;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\Server;
@@ -325,7 +325,11 @@ class Find implements Executable, Explainable
             throw UnsupportedException::readConcernNotSupportedInTransaction();
         }
 
-        $cursor = $server->executeQuery($this->databaseName . '.' . $this->collectionName, new Query($this->filter, $this->createQueryOptions()), $this->createExecuteOptions());
+        $cursor = $server->executeReadCommand(
+            $this->databaseName,
+            $this->createCommand(),
+            $this->createExecuteOptions(),
+        );
 
         if (isset($this->options['codec'])) {
             return CodecCursor::fromCursor($cursor, $this->options['codec']);
@@ -382,6 +386,25 @@ class Find implements Executable, Explainable
         return $cmd + $options;
     }
 
+    private function createCommand(): Command
+    {
+        return new Command(
+            $this->getCommandDocument(),
+            $this->createCommandOptions(),
+        );
+    }
+
+    private function createCommandOptions(): array
+    {
+        $cmdOptions = [];
+
+        if (isset($this->options['maxAwaitTimeMS'])) {
+            $cmdOptions['maxAwaitTimeMS'] = $this->options['maxAwaitTimeMS'];
+        }
+
+        return $cmdOptions;
+    }
+
     /**
      * Create options for executing the command.
      *
@@ -390,6 +413,10 @@ class Find implements Executable, Explainable
     private function createExecuteOptions(): array
     {
         $options = [];
+
+        if (isset($this->options['readConcern'])) {
+            $options['readConcern'] = $this->options['readConcern'];
+        }
 
         if (isset($this->options['readPreference'])) {
             $options['readPreference'] = $this->options['readPreference'];
@@ -423,7 +450,11 @@ class Find implements Executable, Explainable
             }
         }
 
-        foreach (['allowDiskUse', 'allowPartialResults', 'batchSize', 'comment', 'hint', 'limit', 'maxAwaitTimeMS', 'maxScan', 'maxTimeMS', 'noCursorTimeout', 'oplogReplay', 'projection', 'readConcern', 'returnKey', 'showRecordId', 'skip', 'snapshot', 'sort'] as $option) {
+        /*
+         * TODO: update PHPC to read batchSize from command document for find.
+         * As is, php_phongo_command_init() only reads cursor.batchSize, but the find command uses a different structure
+         */
+        foreach (['allowDiskUse', 'allowPartialResults', 'batchSize', 'comment', 'hint', 'limit', 'maxAwaitTimeMS', 'maxScan', 'maxTimeMS', 'noCursorTimeout', 'oplogReplay', 'projection', 'returnKey', 'showRecordId', 'skip', 'snapshot', 'sort'] as $option) {
             if (isset($this->options[$option])) {
                 $options[$option] = $this->options[$option];
             }
