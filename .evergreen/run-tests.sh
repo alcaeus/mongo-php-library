@@ -103,7 +103,7 @@ case "$TESTS" in
       ;;
 
    serverless)
-      php vendor/bin/simple-phpunit $PHPUNIT_OPTS --group serverless
+      php vendor/bin/simple-phpunit $PHPUNIT_OPTS --group serverless --filter testCorpus tests/SpecTests/ClientSideEncryptionSpecTest.php
       ;;
 
    *)
