@@ -695,7 +695,12 @@ class ClientSideEncryptionSpecTest extends FunctionalTestCase
             $corpusCopied[$fieldName] = $this->prepareCorpusData($fieldName, $data, $clientEncryption);
         }
 
-        $collection->insertOne($corpusCopied);
+        ini_set('mongodb.debug', 'STDERR');
+        try {
+            $collection->insertOne($corpusCopied);
+        } finally {
+            ini_set('mongodb.debug', false);
+        }
 
         // Bogus assertion to risky tests
         $this->assertTrue(true);
