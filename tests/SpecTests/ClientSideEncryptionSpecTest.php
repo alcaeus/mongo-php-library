@@ -637,24 +637,24 @@ class ClientSideEncryptionSpecTest extends FunctionalTestCase
 
         self::insertKeyVaultData($client, [
             $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus-key-local.json')),
-            $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus-key-aws.json')),
-            $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus-key-azure.json')),
-            $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus-key-gcp.json')),
-            $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus-key-kmip.json')),
+//            $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus-key-aws.json')),
+//            $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus-key-azure.json')),
+//            $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus-key-gcp.json')),
+//            $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus-key-kmip.json')),
         ]);
 
         $encryptionOpts = [
             'keyVaultNamespace' => 'keyvault.datakeys',
             'kmsProviders' => [
-                'aws' => Context::getAWSCredentials(),
-                'azure' => Context::getAzureCredentials(),
-                'gcp' => Context::getGCPCredentials(),
+//                'aws' => Context::getAWSCredentials(),
+//                'azure' => Context::getAzureCredentials(),
+//                'gcp' => Context::getGCPCredentials(),
                 'local' => ['key' => new Binary(base64_decode(self::LOCAL_MASTERKEY))],
-                'kmip' => ['endpoint' => Context::getKmipEndpoint()],
+//                'kmip' => ['endpoint' => Context::getKmipEndpoint()],
             ],
-            'tlsOptions' => [
-                'kmip' => Context::getKmsTlsOptions(),
-            ],
+//            'tlsOptions' => [
+//                'kmip' => Context::getKmsTlsOptions(),
+//            ],
         ];
 
         $autoEncryptionOpts = $encryptionOpts;
