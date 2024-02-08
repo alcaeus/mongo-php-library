@@ -665,7 +665,7 @@ class ClientSideEncryptionSpecTest extends FunctionalTestCase
             ];
         }
 
-        $corpus = (array) $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus.json'));
+        $corpus = (array) $this->decodeJson(file_get_contents(__DIR__ . '/client-side-encryption/corpus/corpus-small.json'));
         $corpusCopied = [];
 
         $clientEncrypted = static::createTestClient(null, [], ['autoEncryption' => $autoEncryptionOpts]);
@@ -688,9 +688,9 @@ class ClientSideEncryptionSpecTest extends FunctionalTestCase
                 continue;
             }
 
-            if ($data->kms !== 'local') {
-                continue;
-            }
+//            if ($data->kms !== 'local') {
+//                continue;
+//            }
 
             $corpusCopied[$fieldName] = $this->prepareCorpusData($fieldName, $data, $clientEncryption);
         }

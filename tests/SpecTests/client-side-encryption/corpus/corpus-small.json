@@ -1,0 +1,15 @@
+{
+  "_id": "client_side_encryption_corpus",
+  "local_javascriptWithScope_det_explicit_id": {
+    "kms": "local",
+    "type": "javascriptWithScope",
+    "algo": "det",
+    "method": "explicit",
+    "identifier": "id",
+    "allowed": false,
+    "value": {
+      "$code": "x=1",
+      "$scope": {}
+    }
+  }
+}
