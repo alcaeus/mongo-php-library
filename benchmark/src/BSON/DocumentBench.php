@@ -4,6 +4,7 @@ namespace MongoDB\Benchmark\BSON;
 
 use MongoDB\Benchmark\Fixtures\Data;
 use MongoDB\BSON\Document;
+use MongoDB\Model\BSONIterator;
 use PhpBench\Attributes\BeforeMethods;
 use PhpBench\Attributes\Revs;
 use PhpBench\Attributes\Warmup;
@@ -18,10 +19,12 @@ use function iterator_to_array;
 final class DocumentBench
 {
     private static Document $document;
+    private static BSONIterator $iterator;
 
     public function prepareData(): void
     {
         self::$document = Document::fromJSON(file_get_contents(Data::LARGE_FILE_PATH));
+        self::$iterator = new BSONIterator((string) self::$document);
     }
 
     public function benchCheckFirst(): void
@@ -73,6 +76,13 @@ final class DocumentBench
         // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedForeach
         // phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed
         foreach (self::$document as $key => $value);
+    }
+
+    public function benchIterationAsBSONIterator(): void
+    {
+        // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedForeach
+        // phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed
+        foreach (self::$iterator as $key => $value);
     }
 
     public function benchIterationAsArray(): void
