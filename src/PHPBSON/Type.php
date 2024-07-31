@@ -1,6 +1,6 @@
 <?php
 
-namespace MongoDB\BSON;
+namespace MongoDB\PHPBSON;
 
 interface Type
 {
