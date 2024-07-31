@@ -5,6 +5,7 @@ namespace MongoDB\PHPBSON;
 use ArrayAccess;
 use Exception;
 use InvalidArgumentException;
+use MongoDB\BSON\Document as BSONDocument;
 use Stringable;
 
 use function base64_encode;
@@ -28,12 +29,14 @@ final class Document implements ArrayAccess, Stringable
 
     static public function fromJSON(string $json): Document
     {
-        throw new Exception('Not implemented');
+        // TODO: Implement JSON parser
+        return new self((string) BSONDocument::fromJSON($json));
     }
 
     static public function fromPHP(array|object $value): Document
     {
-        throw new Exception('Not implemented');
+        // TODO: Create from PHP
+        return new self((string) BSONDocument::fromPHP($value));
     }
 
     public function get(string $key): mixed
@@ -105,7 +108,7 @@ final class Document implements ArrayAccess, Stringable
 
     private function validate(string $bson): void
     {
-        $data = @unpack('L', $bson);
+        $data = @unpack('V', $bson);
         if ($data === false) {
             throw new InvalidArgumentException('Invalid BSON data');
         }
