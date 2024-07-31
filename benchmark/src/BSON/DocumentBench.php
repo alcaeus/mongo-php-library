@@ -2,9 +2,13 @@
 
 namespace MongoDB\Benchmark\BSON;
 
+use Exception;
+use Generator;
 use MongoDB\Benchmark\Fixtures\Data;
 use MongoDB\BSON\Document;
+use MongoDB\PHPBSON\Document as PHPDocument;
 use PhpBench\Attributes\BeforeMethods;
+use PhpBench\Attributes\ParamProviders;
 use PhpBench\Attributes\Revs;
 use PhpBench\Attributes\Warmup;
 use stdClass;
@@ -18,74 +22,103 @@ use function iterator_to_array;
 final class DocumentBench
 {
     private static Document $document;
+    private static PHPDocument $phpDocument;
 
     public function prepareData(): void
     {
         self::$document = Document::fromJSON(file_get_contents(Data::LARGE_FILE_PATH));
+        self::$phpDocument = PHPDocument::fromBSON((string) self::$document);
     }
 
-    public function benchCheckFirst(): void
+    #[ParamProviders('provideParams')]
+    public static function provideParams(): Generator
     {
-        self::$document->has('qx3MigjubFSm');
+        yield 'Extension' => ['key' => 'bson'];
+        yield 'Library' => ['key' => 'php'];
     }
 
-    public function benchCheckLast(): void
+    #[ParamProviders('provideParams')]
+    public function benchCheckFirst(array $params): void
     {
-        self::$document->has('Zz2MOlCxDhLl');
+        self::getDocument($params['key'])->has('qx3MigjubFSm');
     }
 
-    public function benchAccessFirst(): void
+    #[ParamProviders('provideParams')]
+    public function benchCheckLast(array $params): void
     {
-        self::$document->get('qx3MigjubFSm');
+        self::getDocument($params['key'])->has('Zz2MOlCxDhLl');
     }
 
-    public function benchAccessLast(): void
+    #[ParamProviders('provideParams')]
+    public function benchAccessFirst(array $params): void
     {
-        self::$document->get('Zz2MOlCxDhLl');
+        self::getDocument($params['key'])->get('qx3MigjubFSm');
     }
 
-    public function benchIteratorToArray(): void
+    #[ParamProviders('provideParams')]
+    public function benchAccessLast(array $params): void
     {
-        iterator_to_array(self::$document);
+        self::getDocument($params['key'])->get('Zz2MOlCxDhLl');
     }
 
-    public function benchToPHPObject(): void
+    #[ParamProviders('provideParams')]
+    public function benchIteratorToArray(array $params): void
     {
-        self::$document->toPHP();
+        iterator_to_array(self::getDocument($params['key']));
     }
 
-    public function benchToPHPObjectViaIteration(): void
+    #[ParamProviders('provideParams')]
+    public function benchToPHPObject(array $params): void
+    {
+        self::getDocument($params['key'])->toPHP();
+    }
+
+    #[ParamProviders('provideParams')]
+    public function benchToPHPObjectViaIteration(array $params): void
     {
         $object = new stdClass();
 
-        foreach (self::$document as $key => $value) {
+        foreach (self::getDocument($params['key']) as $key => $value) {
             $object->$key = $value;
         }
     }
 
-    public function benchToPHPArray(): void
+    #[ParamProviders('provideParams')]
+    public function benchToPHPArray(array $params): void
     {
-        self::$document->toPHP(['root' => 'array']);
+        self::getDocument($params['key'])->toPHP(['root' => 'array']);
     }
 
-    public function benchIteration(): void
+    #[ParamProviders('provideParams')]
+    public function benchIteration(array $params): void
     {
         // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedForeach
         // phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed
-        foreach (self::$document as $key => $value);
+        foreach (self::getDocument($params['key']) as $key => $value);
     }
 
-    public function benchIterationAsArray(): void
+    #[ParamProviders('provideParams')]
+    public function benchIterationAsArray(array $params): void
     {
         // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedForeach
         // phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed
-        foreach (self::$document->toPHP(['root' => 'array']) as $key => $value);
+        foreach (self::getDocument($params['key'])->toPHP(['root' => 'array']) as $key => $value);
     }
 
-    public function benchIterationAsObject(): void
+    #[ParamProviders('provideParams')]
+    public function benchIterationAsObject(array $params): void
     {
         // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedForeach
         // phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed
-        foreach (self::$document->toPHP() as $key => $value);
+        foreach (self::getDocument($params['key'])->toPHP() as $key => $value);
+    }
+
+    private static function getDocument(string $key): mixed
+    {
+        return match ($key) {
+            'bson' => self::$document,
+            'php' => self::$phpDocument,
+            default => throw new Exception('Invalid key ' . $key),
+        };
     }
 }
