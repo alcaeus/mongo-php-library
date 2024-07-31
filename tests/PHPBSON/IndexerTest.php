@@ -1,10 +1,10 @@
 <?php
 
-namespace MongoDB\Tests\BSON;
+namespace MongoDB\Tests\PHPBSON;
 
 use Generator;
-use MongoDB\BSON\Indexer;
-use MongoDB\BSON\Type;
+use MongoDB\PHPBSON\Indexer;
+use MongoDB\PHPBSON\Type;
 use MongoDB\Tests\TestCase;
 
 use function hex2bin;

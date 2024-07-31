@@ -1,13 +1,12 @@
 <?php
 
-namespace MongoDB\Tests\BSON;
+namespace MongoDB\Tests\PHPBSON;
 
 use Generator;
 use InvalidArgumentException;
-use MongoDB\BSON\Document;
+use MongoDB\PHPBSON\Document;
 use MongoDB\Tests\TestCase;
 
-use function bin2hex;
 use function hex2bin;
 use function pack;
 
