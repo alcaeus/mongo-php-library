@@ -50,4 +50,16 @@ class DocumentTest extends TestCase
 
         self::assertSame(hex2bin($encodedBSON), (string) $document);
     }
+
+    public function testFromJSON(): void
+    {
+        $document = Document::fromJSON('{"a" : "abababababab"}');
+        self::assertSame(hex2bin('190000000261000D0000006162616261626162616261620000'), (string) $document);
+    }
+
+    public function testFromPHP(): void
+    {
+        $document = Document::fromPHP(['a' => 'abababababab']);
+        self::assertSame(hex2bin('190000000261000D0000006162616261626162616261620000'), (string) $document);
+    }
 }
