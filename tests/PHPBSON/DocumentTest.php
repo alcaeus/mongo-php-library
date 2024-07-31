@@ -62,4 +62,21 @@ class DocumentTest extends TestCase
         $document = Document::fromPHP(['a' => 'abababababab']);
         self::assertSame(hex2bin('190000000261000D0000006162616261626162616261620000'), (string) $document);
     }
+
+    public function testHas(): void
+    {
+        $document = Document::fromJSON('{"a" : "abababababab"}');
+        self::assertTrue($document->has('a'));
+        self::assertTrue(isset($document['a']));
+
+        self::assertFalse($document->has('b'));
+        self::assertFalse(isset($document['b']));
+    }
+
+    public function testGet(): void
+    {
+        $document = Document::fromJSON('{"a" : "abababababab"}');
+        self::assertSame('abababababab', $document->get('a'));
+        self::assertSame('abababababab', $document['a']);
+    }
 }

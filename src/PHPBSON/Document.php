@@ -6,6 +6,7 @@ use ArrayAccess;
 use Exception;
 use InvalidArgumentException;
 use MongoDB\BSON\Document as BSONDocument;
+use MongoDB\PHPBSON\Index\DocumentIndex;
 use Stringable;
 
 use function base64_encode;
@@ -14,12 +15,11 @@ use function substr;
 
 final class Document implements ArrayAccess, Stringable
 {
-    private string $bson;
+    private DocumentIndex|null $index = null;
 
-    private function __construct(string $bson)
+    private function __construct(private string $bson)
     {
         $this->validate($bson);
-        $this->bson = $bson;
     }
 
     static public function fromBSON(string $bson): Document
@@ -41,7 +41,7 @@ final class Document implements ArrayAccess, Stringable
 
     public function get(string $key): mixed
     {
-        throw new Exception('Not implemented');
+        return $this->getIndex()->getFieldValue($key);
     }
 
     public function getIterator(): Iterator
@@ -51,7 +51,7 @@ final class Document implements ArrayAccess, Stringable
 
     public function has(string $key): bool
     {
-        throw new Exception('Not implemented');
+        return $this->getIndex()->hasField($key);
     }
 
     public function toPHP(?array $typeMap = null): array|object
@@ -71,12 +71,12 @@ final class Document implements ArrayAccess, Stringable
 
     public function offsetExists(mixed $offset): bool
     {
-        throw new Exception('Not implemented');
+        return $this->getIndex()->hasField($offset);
     }
 
     public function offsetGet(mixed $offset): mixed
     {
-        throw new Exception('Not implemented');
+        return $this->getIndex()->getFieldValue($offset);
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
@@ -125,5 +125,10 @@ final class Document implements ArrayAccess, Stringable
         if (substr($bson, -1, 1) !== "\0") {
             throw new InvalidArgumentException('Invalid BSON length');
         }
+    }
+
+    private function getIndex(): DocumentIndex
+    {
+        return $this->index ??= new DocumentIndex($this, (new Indexer())->getIndex($this->bson));
     }
 }
