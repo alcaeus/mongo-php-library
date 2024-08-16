@@ -230,7 +230,7 @@ class IndexerTest extends TestCase
                 'keyOffset' => 5,
                 'keyLength' => 1,
                 'dataOffset' => 11,
-                'dataLength' => 25,
+                'dataLength' => 21,
             ]],
             // {"a" : {"$code" : "abcd", "$scope" : {"x" : {"$numberInt": "1"}}}}
             'bson' => hex2bin('210000000F6100190000000500000061626364000C000000107800010000000000'),
