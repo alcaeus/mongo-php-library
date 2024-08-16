@@ -4,13 +4,17 @@ namespace MongoDB\PHPBSON\Index;
 
 use InvalidArgumentException;
 use MongoDB\BSON\Binary;
+use MongoDB\BSON\DBPointer;
+use MongoDB\BSON\Decimal128;
 use MongoDB\BSON\Int64;
 use MongoDB\BSON\Javascript;
 use MongoDB\BSON\MaxKey;
 use MongoDB\BSON\MinKey;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
+use MongoDB\BSON\Symbol;
 use MongoDB\BSON\Timestamp;
+use MongoDB\BSON\Undefined;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\PHPBSON\Document;
 use MongoDB\PHPBSON\Type;
@@ -36,7 +40,22 @@ final class Field
         public readonly int|null $dataOffset = null,
         public readonly int|null $dataLength = null,
     ) {
-        // TODO: throw if dataOffset or dataLength are null
+        if ($this->bsonType === Type::UNDEFINED
+            || $this->bsonType === Type::NULL
+            || $this->bsonType === Type::MINKEY
+            || $this->bsonType === Type::MAXKEY) {
+            if ($this->dataLength !== 0 || $this->dataOffset !== null) {
+                throw new InvalidArgumentException('Invalid data offset or length');
+            }
+        } else {
+            if ($this->dataLength === null || $this->dataOffset === null) {
+                throw new InvalidArgumentException('Invalid data offset or length');
+            }
+
+            if ($this->dataLength <= 0 || $this->dataOffset <= $this->keyOffset + $this->keyLength) {
+                throw new InvalidArgumentException('Invalid data offset or length');
+            }
+        }
 
         $this->source = WeakReference::create($source);
     }
@@ -59,7 +78,6 @@ final class Field
         }
 
         $bson = (string) $source;
-        $data = false;
 
         switch ($this->bsonType) {
             case Type::DOUBLE:
@@ -75,27 +93,29 @@ final class Field
                 $this->value = new Javascript($code);
                 break;
 
-            // TODO
-//            case Type::SYMBOL:
-//                break;
+            case Type::SYMBOL:
+                $this->value = Symbol::__set_state([
+                    'symbol' => substr($bson, $this->dataOffset, $this->dataLength),
+                ]);
+                break;
 
             case Type::DOCUMENT:
-                // TODO: Handle PackedArray
                 $this->value = Document::fromBSON(substr($bson, $this->dataOffset, $this->dataLength));
                 break;
 
-            // TODO
-//            case Type::ARRAY:
-//                break;
+            case Type::ARRAY:
+                // TODO: Return PackedArray instance
+                $this->value = Document::fromBSON(substr($bson, $this->dataOffset, $this->dataLength));
+                break;
 
             case Type::BINARY:
-                $data = $this->unpackWithChecks('Csubtype/c' . ($this->dataLength - 1) . 'data', $bson, $this->dataOffset);
+                $data = $this->unpackWithChecks('Csubtype/Z' . ($this->dataLength - 1) . 'data', $bson, $this->dataOffset);
 
                 $this->value = new Binary($data['data'], (int) $data['subtype']);
                 break;
 
             case Type::UNDEFINED:
-                $this->value = unserialize('O:22:"MongoDB\BSON\Undefined":0:{}');
+                $this->value = Undefined::__set_state([]);
                 break;
 
             case Type::NULL:
@@ -119,7 +139,10 @@ final class Field
                 break;
 
             case Type::UTCDATETIME:
-                $this->value = new UTCDateTime(substr($bson, $this->dataOffset, $this->dataLength));
+                // TODO: q is machine byte order, needs little endian
+                // TODO: causes issues on 32-bit systems
+                $timestamp = $this->unpackWithChecks('qdata', $bson, $this->dataOffset, 'data');
+                $this->value = new UTCDateTime($timestamp);
                 break;
 
             case Type::TIMESTAMP:
@@ -129,7 +152,10 @@ final class Field
                 break;
 
             case Type::INT64:
-                $this->value = new Int64(substr($bson, $this->dataOffset, $this->dataLength));
+                // TODO: q is machine byte order, needs little endian
+                // TODO: causes issues on 32-bit systems
+                $value = $this->unpackWithChecks('qdata', $bson, $this->dataOffset, 'data');
+                $this->value = new Int64($value);
                 break;
 
             case Type::REGEX:
@@ -139,45 +165,36 @@ final class Field
                 $this->value = new Regex($pattern, $flags);
                 break;
 
-            // TODO
-//            case Type::DBPOINTER:
-//                // string (byte*12)
-//                $data = @unpack('Vlength', $bson, $newOffset);
-//                if ($data === false) {
-//                    throw new InvalidArgumentException('Invalid BSON data');
-//                }
-//
-//                $dataOffset = $newOffset;
-//                // Data length includes 4 bytes for the string length and 12 bytes for an ObjectId
-//                $dataLength = 4 + (int) $data['length'] + 12;
-//                $newOffset += $dataLength + 12;
-//                break;
+            case Type::DBPOINTER:
+                $refLength = (int) $this->unpackWithChecks('Vlength', $bson, $this->dataOffset, 'length');
 
-            // TODO
-//            case Type::CODEWITHSCOPE:
-//                // int32 string document
-//                // The int32 contains the total number of bytes in the code_w_scope
-//                $data = @unpack('Vlength', $bson, $newOffset);
-//                if ($data === false) {
-//                    throw new InvalidArgumentException('Invalid BSON data');
-//                }
-//
-//                // Skip the 4 byte length
-//                $dataOffset = $newOffset + 4;
-//                $dataLength = (int) $data['length'];
-//                $newOffset = $dataOffset + $dataLength;
-//                break;
-
-            case Type::INT32:
-                $this->value = (int) $this->unpackWithChecks('Vdata', $bson, $this->dataOffset, 'data');
+                $data = $this->unpackWithChecks('Z' . $refLength . 'ref/Z12id', $bson, $this->dataOffset + 4);
+                $this->value = DBPointer::__set_state([
+                    'ref' => $data['ref'],
+                    'id' => bin2hex($data['id']),
+                ]);
                 break;
 
-            // TODO
-//            case Type::DECIMAL128:
-//                $dataLength = 16;
-//                $dataOffset = $newOffset;
-//                $newOffset += $dataLength;
-//                break;
+            case Type::CODEWITHSCOPE:
+                $codeLength = (int) $this->unpackWithChecks('Vlength', $bson, $this->dataOffset, 'length');
+
+                $code = $this->unpackWithChecks('Z' . $codeLength . 'data', $bson, $this->dataOffset + 4, 'data');
+                $scope = Document::fromBSON(substr($bson, $this->dataOffset + 4 + $codeLength, $this->dataLength - $codeLength - 4));
+
+                // TODO: Scope may not properly handle BSON documents
+                $this->value = new Javascript($code, $scope);
+                break;
+
+            case Type::INT32:
+                // TODO: 'l' is machine byte order, should be little endian always
+                $this->value = (int) $this->unpackWithChecks('ldata', $bson, $this->dataOffset, 'data');
+                break;
+
+            case Type::DECIMAL128:
+                // TODO: 128 bit decimal
+                $this->value = new Decimal128('0');
+//                $this->value = new Decimal128(substr($bson, $this->dataOffset, $this->dataLength));
+                break;
 
             default:
                 throw new InvalidArgumentException('Invalid BSON type ' . $this->bsonType);

@@ -187,7 +187,7 @@ class Indexer
 
             case Type::CODEWITHSCOPE:
                 // int32 string document
-                // The int32 contains the total number of bytes in the code_w_scope
+                // The int32 contains the total number of bytes in the code_w_scope (including itself)
                 $data = @unpack('Vlength', $bson, $newOffset);
                 if ($data === false) {
                     throw new InvalidArgumentException('Invalid BSON data');
@@ -195,7 +195,7 @@ class Indexer
 
                 // Skip the 4 byte length
                 $dataOffset = $newOffset + 4;
-                $dataLength = (int) $data['length'];
+                $dataLength = (int) $data['length'] - 4;
                 $newOffset = $dataOffset + $dataLength;
                 break;
 
