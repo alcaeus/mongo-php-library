@@ -8,8 +8,16 @@ use InvalidArgumentException;
 use MongoDB\PHPBSON\Index\Index;
 use Stringable;
 
+use function addslashes;
 use function base64_decode;
 use function base64_encode;
+use function get_debug_type;
+use function is_bool;
+use function is_float;
+use function is_int;
+use function is_null;
+use function is_string;
+use function sprintf;
 use function strlen;
 use function substr;
 use function unpack;
@@ -53,10 +61,7 @@ abstract class Structure implements ArrayAccess, Stringable, Type
         throw new Exception('Not implemented');
     }
 
-    public function toCanonicalExtendedJSON(): string
-    {
-        throw new Exception('Not implemented');
-    }
+    abstract public function toCanonicalExtendedJSON(): string;
 
     public function toRelaxedExtendedJSON(): string
     {
@@ -102,6 +107,35 @@ abstract class Structure implements ArrayAccess, Stringable, Type
         if (substr($bson, -1, 1) !== "\0") {
             throw new InvalidArgumentException('Invalid BSON length');
         }
+    }
+
+    protected function formatValueForJson(mixed $value): string
+    {
+        if ($value instanceof Type) {
+            return $value->toCanonicalExtendedJSON();
+        }
+
+        if (is_string($value)) {
+            return sprintf('"%s"', addslashes($value));
+        }
+
+        if (is_int($value)) {
+            // TODO: Handle 64 bit values
+            return sprintf('{"$numberInt": "%d"}', $value);
+        }
+
+        if (is_float($value)) {
+            // TODO: Formatting of float values
+            return sprintf('{"$numberDouble": "%f"}', $value);
+        } if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        if (is_null($value)) {
+            return 'null';
+        }
+
+        throw new Exception('Unsupported field type ' . get_debug_type($value));
     }
 
     protected function getIndex(): Index
