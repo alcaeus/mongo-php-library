@@ -17,6 +17,8 @@ use MongoDB\BSON\Timestamp;
 use MongoDB\BSON\Undefined;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\PHPBSON\Document;
+use MongoDB\PHPBSON\PackedArray;
+use MongoDB\PHPBSON\Structure;
 use MongoDB\PHPBSON\Type;
 use OutOfBoundsException;
 use WeakReference;
@@ -32,7 +34,7 @@ final class Field
     private mixed $value;
 
     public function __construct(
-        Document $source,
+        Structure $source,
         public readonly string $key,
         public readonly int $bsonType,
         public readonly int $keyOffset,
@@ -72,7 +74,7 @@ final class Field
     private function readValue(): void
     {
         $source = $this->source->get();
-        if (! $source instanceof Document) {
+        if (! $source instanceof Structure) {
             // Make this a little easier to handle
             throw new OutOfBoundsException('BSON document is no longer valid');
         }
@@ -104,8 +106,7 @@ final class Field
                 break;
 
             case Type::ARRAY:
-                // TODO: Return PackedArray instance
-                $this->value = Document::fromBSON(substr($bson, $this->dataOffset, $this->dataLength));
+                $this->value = PackedArray::fromBSON(substr($bson, $this->dataOffset, $this->dataLength));
                 break;
 
             case Type::BINARY:
