@@ -54,7 +54,7 @@ final class Field
                 throw new InvalidArgumentException('Invalid data offset or length');
             }
 
-            if ($this->dataLength <= 0 || $this->dataOffset <= $this->keyOffset + $this->keyLength) {
+            if ($this->dataLength < 0 || $this->dataOffset <= $this->keyOffset + $this->keyLength) {
                 throw new InvalidArgumentException('Invalid data offset or length');
             }
         }

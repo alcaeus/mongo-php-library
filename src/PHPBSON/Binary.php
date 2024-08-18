@@ -46,7 +46,8 @@ final class Binary implements BinaryInterface, Type
 
     public function toCanonicalExtendedJSON(): string
     {
-        return sprintf('{ "$binary" : {"base64" : "%s", "subType" : "%s"}}', base64_encode($this->data), $this->type);
+        // TODO: Format type as hex
+        return sprintf('{ "$binary" : {"base64" : "%s", "subType" : "%02d"}}', base64_encode($this->data), $this->type);
     }
 
     public function toRelaxedExtendedJSON(): string
