@@ -15,7 +15,7 @@ use function substr;
 use function unpack;
 
 /** @internal */
-abstract class Structure implements ArrayAccess, Stringable
+abstract class Structure implements ArrayAccess, Stringable, Type
 {
     protected Index|null $index = null;
 

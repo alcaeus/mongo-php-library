@@ -4,20 +4,20 @@ namespace MongoDB\Tests\PHPBSON;
 
 use Generator;
 use InvalidArgumentException;
-use MongoDB\BSON\Binary;
-use MongoDB\BSON\DBPointer;
-use MongoDB\BSON\Int64;
-use MongoDB\BSON\Javascript;
-use MongoDB\BSON\MaxKey;
-use MongoDB\BSON\MinKey;
-use MongoDB\BSON\ObjectId;
-use MongoDB\BSON\Regex;
-use MongoDB\BSON\Symbol;
-use MongoDB\BSON\Timestamp;
-use MongoDB\BSON\Undefined;
-use MongoDB\BSON\UTCDateTime;
+use MongoDB\PHPBSON\Binary;
+use MongoDB\PHPBSON\DBPointer;
 use MongoDB\PHPBSON\Document;
+use MongoDB\PHPBSON\Int64;
+use MongoDB\PHPBSON\Javascript;
+use MongoDB\PHPBSON\MaxKey;
+use MongoDB\PHPBSON\MinKey;
+use MongoDB\PHPBSON\ObjectId;
 use MongoDB\PHPBSON\PackedArray;
+use MongoDB\PHPBSON\Regex;
+use MongoDB\PHPBSON\Symbol;
+use MongoDB\PHPBSON\Timestamp;
+use MongoDB\PHPBSON\Undefined;
+use MongoDB\PHPBSON\UTCDateTime;
 use MongoDB\Tests\TestCase;
 
 use function base64_decode;
@@ -136,7 +136,7 @@ class PackedArrayTest extends TestCase
         ];
 
         yield 'Undefined' => [
-            'expected' => Undefined::__set_state([]),
+            'expected' => new Undefined(),
             // [{"$undefined" : true}]
             'bson' => hex2bin('0800000006300000'),
         ];
@@ -178,10 +178,7 @@ class PackedArrayTest extends TestCase
         ];
 
         yield 'DBPointer' => [
-            'expected' => DBPointer::__set_state([
-                'ref' => 'b',
-                'id' => '56e1fc72e0c917e9c4714161',
-            ]),
+            'expected' => new DBPointer('b', '56e1fc72e0c917e9c4714161'),
             // {"a": {"$dbPointer": {"$ref": "b", "$id": {"$oid": "56e1fc72e0c917e9c4714161"}}}}
             'bson' => hex2bin('1A0000000C300002000000620056E1FC72E0C917E9C471416100'),
         ];
@@ -193,7 +190,7 @@ class PackedArrayTest extends TestCase
         ];
 
         yield 'Symbol' => [
-            'expected' => Symbol::__set_state(['symbol' => 'abababababab']),
+            'expected' => new Symbol('abababababab'),
             // [{"$symbol" : "abababababab"}]
             'bson' => hex2bin('190000000E30000D0000006162616261626162616261620000'),
         ];

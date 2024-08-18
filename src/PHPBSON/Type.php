@@ -25,4 +25,8 @@ interface Type
     const DECIMAL128 = 19;
     const MINKEY = -1;
     const MAXKEY = 127;
+
+    public function toCanonicalExtendedJSON(): string;
+
+    public function toRelaxedExtendedJSON(): string;
 }

@@ -92,13 +92,11 @@ final class Field
 
             case Type::CODE:
                 $code = $this->unpackWithChecks('Z' . $this->dataLength . 'data', $bson, $this->dataOffset, 'data');
-                $this->value = new Javascript($code);
+                $this->value = new \MongoDB\PHPBSON\Javascript($code);
                 break;
 
             case Type::SYMBOL:
-                $this->value = Symbol::__set_state([
-                    'symbol' => substr($bson, $this->dataOffset, $this->dataLength),
-                ]);
+                $this->value = new \MongoDB\PHPBSON\Symbol(substr($bson, $this->dataOffset, $this->dataLength));
                 break;
 
             case Type::DOCUMENT:
@@ -112,11 +110,11 @@ final class Field
             case Type::BINARY:
                 $data = $this->unpackWithChecks('Csubtype/Z' . ($this->dataLength - 1) . 'data', $bson, $this->dataOffset);
 
-                $this->value = new Binary($data['data'], (int) $data['subtype']);
+                $this->value = new \MongoDB\PHPBSON\Binary($data['data'], (int) $data['subtype']);
                 break;
 
             case Type::UNDEFINED:
-                $this->value = Undefined::__set_state([]);
+                $this->value = new \MongoDB\PHPBSON\Undefined();
                 break;
 
             case Type::NULL:
@@ -124,15 +122,15 @@ final class Field
                 break;
 
             case Type::MINKEY:
-                $this->value = new MinKey();
+                $this->value = new \MongoDB\PHPBSON\MinKey();
                 break;
 
             case Type::MAXKEY:
-                $this->value = new MaxKey();
+                $this->value = new \MongoDB\PHPBSON\MaxKey();
                 break;
 
             case Type::OBJECTID:
-                $this->value = new ObjectId(bin2hex(substr($bson, $this->dataOffset, $this->dataLength)));
+                $this->value = new \MongoDB\PHPBSON\ObjectId(bin2hex(substr($bson, $this->dataOffset, $this->dataLength)));
                 break;
 
             case Type::BOOLEAN:
@@ -143,37 +141,34 @@ final class Field
                 // TODO: q is machine byte order, needs little endian
                 // TODO: causes issues on 32-bit systems
                 $timestamp = $this->unpackWithChecks('qdata', $bson, $this->dataOffset, 'data');
-                $this->value = new UTCDateTime($timestamp);
+                $this->value = new \MongoDB\PHPBSON\UTCDateTime($timestamp);
                 break;
 
             case Type::TIMESTAMP:
                 $data = $this->unpackWithChecks('Vincrement/Vtimestamp', $bson, $this->dataOffset);
 
-                $this->value = new Timestamp((int) $data['increment'], (int) $data['timestamp']);
+                $this->value = new \MongoDB\PHPBSON\Timestamp((int) $data['increment'], (int) $data['timestamp']);
                 break;
 
             case Type::INT64:
                 // TODO: q is machine byte order, needs little endian
                 // TODO: causes issues on 32-bit systems
                 $value = $this->unpackWithChecks('qdata', $bson, $this->dataOffset, 'data');
-                $this->value = new Int64($value);
+                $this->value = new \MongoDB\PHPBSON\Int64($value);
                 break;
 
             case Type::REGEX:
                 $pattern = $this->unpackWithChecks('Z*pattern', $bson, $this->dataOffset, 'pattern');
                 $flags = $this->unpackWithChecks('Z*flags', $bson, $this->dataOffset + strlen($pattern) + 1, 'flags');
 
-                $this->value = new Regex($pattern, $flags);
+                $this->value = new \MongoDB\PHPBSON\Regex($pattern, $flags);
                 break;
 
             case Type::DBPOINTER:
                 $refLength = (int) $this->unpackWithChecks('Vlength', $bson, $this->dataOffset, 'length');
 
                 $data = $this->unpackWithChecks('Z' . $refLength . 'ref/Z12id', $bson, $this->dataOffset + 4);
-                $this->value = DBPointer::__set_state([
-                    'ref' => $data['ref'],
-                    'id' => bin2hex($data['id']),
-                ]);
+                $this->value = new \MongoDB\PHPBSON\DBPointer($data['ref'], bin2hex($data['id']));
                 break;
 
             case Type::CODEWITHSCOPE:
@@ -183,7 +178,7 @@ final class Field
                 $scope = Document::fromBSON(substr($bson, $this->dataOffset + 4 + $codeLength, $this->dataLength - $codeLength - 4));
 
                 // TODO: Scope may not properly handle BSON documents
-                $this->value = new Javascript($code, $scope);
+                $this->value = new \MongoDB\PHPBSON\Javascript($code, $scope);
                 break;
 
             case Type::INT32:
