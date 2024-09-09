@@ -44,8 +44,24 @@ final class DocumentBench
     }
 
     #[ParamProviders('provideParams')]
+    public function benchCheckFirstMultipleTimes(array $params): void
+    {
+        self::getDocument($params['key'])->has('qx3MigjubFSm');
+        self::getDocument($params['key'])->has('qx3MigjubFSm');
+        self::getDocument($params['key'])->has('qx3MigjubFSm');
+    }
+
+    #[ParamProviders('provideParams')]
     public function benchCheckLast(array $params): void
     {
+        self::getDocument($params['key'])->has('Zz2MOlCxDhLl');
+    }
+
+    #[ParamProviders('provideParams')]
+    public function benchCheckLastMultipleTimes(array $params): void
+    {
+        self::getDocument($params['key'])->has('Zz2MOlCxDhLl');
+        self::getDocument($params['key'])->has('Zz2MOlCxDhLl');
         self::getDocument($params['key'])->has('Zz2MOlCxDhLl');
     }
 
@@ -56,8 +72,24 @@ final class DocumentBench
     }
 
     #[ParamProviders('provideParams')]
+    public function benchAccessFirstMultipleTimes(array $params): void
+    {
+        self::getDocument($params['key'])->get('qx3MigjubFSm');
+        self::getDocument($params['key'])->get('qx3MigjubFSm');
+        self::getDocument($params['key'])->get('qx3MigjubFSm');
+    }
+
+    #[ParamProviders('provideParams')]
     public function benchAccessLast(array $params): void
     {
+        self::getDocument($params['key'])->get('Zz2MOlCxDhLl');
+    }
+
+    #[ParamProviders('provideParams')]
+    public function benchAccessLastMultipleTimes(array $params): void
+    {
+        self::getDocument($params['key'])->get('Zz2MOlCxDhLl');
+        self::getDocument($params['key'])->get('Zz2MOlCxDhLl');
         self::getDocument($params['key'])->get('Zz2MOlCxDhLl');
     }
 
