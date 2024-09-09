@@ -29,8 +29,22 @@ final class DocumentBench
         self::$document->has('qx3MigjubFSm');
     }
 
+    public function benchCheckFirstMultipleTimes(): void
+    {
+        self::$document->has('qx3MigjubFSm');
+        self::$document->has('qx3MigjubFSm');
+        self::$document->has('qx3MigjubFSm');
+    }
+
     public function benchCheckLast(): void
     {
+        self::$document->has('Zz2MOlCxDhLl');
+    }
+
+    public function benchCheckLastMultipleTimes(): void
+    {
+        self::$document->has('Zz2MOlCxDhLl');
+        self::$document->has('Zz2MOlCxDhLl');
         self::$document->has('Zz2MOlCxDhLl');
     }
 
@@ -39,8 +53,22 @@ final class DocumentBench
         self::$document->get('qx3MigjubFSm');
     }
 
+    public function benchAccessFirstMultipleTimes(): void
+    {
+        self::$document->get('qx3MigjubFSm');
+        self::$document->get('qx3MigjubFSm');
+        self::$document->get('qx3MigjubFSm');
+    }
+
     public function benchAccessLast(): void
     {
+        self::$document->get('Zz2MOlCxDhLl');
+    }
+
+    public function benchAccessLastMultipleTimes(): void
+    {
+        self::$document->get('Zz2MOlCxDhLl');
+        self::$document->get('Zz2MOlCxDhLl');
         self::$document->get('Zz2MOlCxDhLl');
     }
 
