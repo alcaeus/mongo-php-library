@@ -598,4 +598,33 @@ class FuelExample1Test extends TestCase
             ),
         );
     }
+
+    public function testFirstClassCallableSyntax(): void
+    {
+        $reportDate = Expression::dateFieldPath('reportDate');
+        $price = Expression::doubleFieldPath('price');
+        $fuelType = Expression::fieldPath('fuelType');
+        $brand = Expression::fieldPath('station.brand');
+
+        $group = Stage::group(...);
+        $year = Expression::year(...);
+        $month = Expression::month(...);
+        $min = Accumulator::min(...);
+        $max = Accumulator::max(...);
+        $avg = Accumulator::avg(...);
+        $sum = Accumulator::sum(...);
+
+        $group(
+            _id: object(
+                year: $year($reportDate),
+                month: $month($reportDate),
+                fuelType: $fuelType,
+                brand: $brand,
+            ),
+            lowest: $min($price),
+            highest: $max($price),
+            average: $avg($price),
+            count: $sum(1),
+        );
+    }
 }

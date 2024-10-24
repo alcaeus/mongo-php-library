@@ -718,3 +718,87 @@ regression should we make any changes to the generator, and it allows us to use
 the builder and feel what it's like. Ultimately, we love to add this builder
 code to the server documentation, similar to how we add other language-specific
 code snippets, but we're not quite there yet.
+
+## Builder Syntax - Static Methods or Functions?
+
+I've mentioned before that the builder uses static methods because of naming
+conflicts. It really comes down to a few names, for example the `$match` stage
+and `$and` or `$switch` operators. While PHP allows us to use reserved keywords
+as names for methods in a class, they are not allowed for function names. We
+have considered using suffixes for namespaced functions:
+
+```php
+function andQuery(...) {}
+function matchStage(...) {}
+function switchOperator(...) {}
+```
+
+Adding a suffix to every stage and operator doesn't really reduce verbosity, so
+we decided against it. Another option was to use an underscore prefix for all
+reserved names:
+
+```php
+function _and(...) {}
+function _match(...) {}
+function _switch(...) {}
+```
+
+We also decided against this option, partly because the underscore marks (or at
+least used to mark) private functions or methods, but also because the
+underscore would break alphabetical sorting in code completion.
+
+A less-than-serious approach was to use emojis, which I learned was valid in
+PHP:
+
+```php
+function 🔍and(...) {}
+function 💲match(...) {}
+```
+
+In all seriousness, there are alternatives if you dislike the static methods.
+PHP's
+[first class callable syntax](https://www.php.net/manual/en/functions.first_class_callable_syntax.php)
+allows you to create a closure from an existing method and store it in a
+variable to later invoke the closure:
+
+```php
+$reportDate = Expression::dateFieldPath('reportDate');
+$price = Expression::doubleFieldPath('price');
+$fuelType = Expression::fieldPath('fuelType');
+$brand = Expression::fieldPath('station.brand');
+
+$group = Stage::group(...);
+$year = Expression::year(...);
+$month = Expression::month(...);
+$min = Accumulator::min(...);
+$max = Accumulator::max(...);
+$avg = Accumulator::avg(...);
+$sum = Accumulator::sum(...);
+
+$group(
+    _id: object(
+        year: $year($reportDate),
+        month: $month($reportDate),
+        fuelType: $fuelType,
+        brand: $brand,
+    ),
+    lowest: $min($price),
+    highest: $max($price),
+    average: $avg($price),
+    count: $sum(1),
+);
+```
+
+Again, PHP's use of `$` to mark variables plays nice with aggregation pipeline
+using it for stages and operators. We have considered adding a method to each
+factory class that would return an array of closures to make this easier:
+
+```php
+['year' => $year, 'month' => $month] = Accumulator::accumulators();
+
+// Alternatively, if you want to use all accumulators as variables:
+extract(Accumulator::accumulators());
+```
+
+We have not implemented this for now, but if you prefer this syntax to static
+methods, or if you have alternative suggestions, please let us know about them!
