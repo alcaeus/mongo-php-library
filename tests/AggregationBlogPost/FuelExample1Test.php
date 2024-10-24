@@ -2,7 +2,6 @@
 
 namespace AggregationBlogPost;
 
-use MongoDB\BSON\Type;
 use MongoDB\Builder\Accumulator;
 use MongoDB\Builder\Expression;
 use MongoDB\Builder\Pipeline;

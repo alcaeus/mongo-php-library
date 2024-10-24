@@ -121,12 +121,12 @@ pipeline aggregates all of these documents, producing a document for each month:
 Without going into more details on this, even if we were to comment on parts of
 the aggregation pipeline to explain what it does, there will still be a high
 cognitive load when going through the aggregation pipeline. One reason for this
-is that any PHP editor will not know that this is an aggregation pipeline, and
-thus can't provide much help beyond syntax highlighting (e.g. "this is a string
-in an array"). Couple that with a few levels of nesting, and you've got yourself
-this magical kind of code that you can write, but not read. We can of course
-refactor this code, but before we get into that, we want to move away from these
-array structures.
+is that the only way to express the aggregation framework domain-specific
+language (DSL) is through untyped arrays, and any PHP editor can't provide much
+help beyond syntax highlighting. Pair that with a few levels of nesting, and
+you've got yourself the kind of code that you can write, but not read. We could
+start off by refactoring the code, but instead let's try to move away from array
+structures and use a better solution.
 
 ## Introducing the Aggregation Pipeline Builder
 
@@ -137,6 +137,12 @@ and operators. Here is that same pipeline as we had before, this time written
 with the aggregation pipeline builder:
 
 ```php
+use MongoDB\Builder\Accumulator;
+use MongoDB\Builder\Expression;
+use MongoDB\Builder\Pipeline;
+use MongoDB\Builder\Stage;
+use function MongoDB\object;
+
 $pipeline = new Pipeline(
     Stage::group(
         _id: object(
@@ -209,7 +215,9 @@ that can receive an aggregation pipeline, such as `Collection::aggregate` or
 `Collection::watch`. In addition, methods like `Collection::updateMany` and
 `Collection::findOneAndUpdate` can receive a `Pipeline` instance to run an
 update. Keep in mind that you won't be able to use all available aggregation
-pipeline stages in update operations.
+pipeline stages in update operations. Since a pipeline instance could be used
+everywhere, the builder will allow you to add stages to a pipeline that aren't
+supported in updates.
 
 ### Builder Design
 
@@ -223,7 +231,8 @@ expression that resolves to a date, timestamp, or ObjectId. While we could use
 `$reportDate` to reference the `reportDate` field of the document being evaluated,
 `dateFieldPath` is more expressive and shows intent of receiving a date field.
 This also allows IDEs like PhpStorm to make better suggestions when offering
-code completion.
+code completion, as well as a certain amount of type checking to ensure you're
+not creating pipelines that would result in server errors.
 
 For all expressions, there are factory classes with methods to create the
 expression objects. The use of static methods makes the code a little more
@@ -314,17 +323,17 @@ to since they are only used once, but you may want to do so in favor of consiste
 In complex pipelines, you'll often find comments explaining what a certain
 pipeline stage or segment does. You should definitely include comments like
 that, but you can also consider extracting parts of a pipeline to your own
-builder method. If you choose a descriptive method name, this can already
-explain what the stage or segment does, without the reader having to see the
-internal workings.
+builder method. Choosing a descriptive method name that explains what the stage
+or segment does can also remove the need for a comment and spare the reader from
+having to dive into the internal workings.
 
 ```php
 public static function groupAndComputeStatistics(
-    stdClass $_id,
+    stdClass $groupBy,
     Expression\ResolvesToDouble $price,
 ): GroupStage {
     return Stage::group(
-        _id: $_id,
+        _id: $groupBy,
         lowest: Accumulator::min($price),
         highest: Accumulator::max($price),
         average: Accumulator::avg($price),
@@ -342,7 +351,7 @@ $reportDate = Expression::dateFieldPath('reportDate');
 $price = Expression::doubleFieldPath('price');
 
 self::groupAndComputeStatistics(
-    _id: object(
+    groupBy: object(
         year: Expression::year($reportDate),
         month: Expression::month($reportDate),
         fuelType: Expression::fieldPath('fuelType'),
@@ -366,7 +375,7 @@ return a `Pipeline` instance:
 
 ```php
 public static function groupAndAssembleFuelTypePriceObject(
-    stdClass $_id,
+    stdClass $groupBy,
     Expression\ResolvesToString $fuelType,
     Expression\ResolvesToInt $count,
     Expression\ResolvesToDouble $lowest,
@@ -375,7 +384,7 @@ public static function groupAndAssembleFuelTypePriceObject(
 ): Pipeline {
     return new Pipeline(
         Stage::group(
-            _id: $_id,
+            _id: $groupBy,
             count: Accumulator::sum($count),
             prices: Accumulator::push(
                 object(
@@ -409,7 +418,7 @@ the pipeline:
 
 ```php
 self::groupAndAssembleFuelTypePriceObject(
-    _id: object(
+    groupBy: object(
         year: Expression::fieldPath('_id.year'),
         month: Expression::fieldPath('_id.month'),
         brand: Expression::fieldPath('_id.brand'),
@@ -432,7 +441,7 @@ $price = Expression::doubleFieldPath('price');
 
 $pipeline = new Pipeline(
     self::groupAndComputeStatistics(
-        _id: object(
+        groupBy: object(
             year: Expression::year($reportDate),
             month: Expression::month($reportDate),
             fuelType: Expression::fieldPath('fuelType'),
@@ -441,7 +450,7 @@ $pipeline = new Pipeline(
         price: $price,
     ),
     self::groupAndAssembleFuelTypePriceObject(
-        _id: object(
+        groupBy: object(
             year: Expression::fieldPath('_id.year'),
             month: Expression::fieldPath('_id.month'),
             brand: Expression::fieldPath('_id.brand'),
@@ -453,7 +462,7 @@ $pipeline = new Pipeline(
         average: Expression::fieldPath('average'),
     ),
     self::groupBrandsAndSort(
-        _id: object(
+        groupBy: object(
             year: Expression::fieldPath('_id.year'),
             month: Expression::fieldPath('_id.month'),
         ),
@@ -588,16 +597,16 @@ public static function computeElapsedSecondsOnDay(
  * argument.
  */
 public static function computeDurationBetweenDates(
-    Expression\ResolvesToDate $previousReportDate,
-    Expression\ResolvesToDate $reportDate,
+    Expression\ResolvesToDate $startDate,
+    Expression\ResolvesToDate $endDate,
 ): Expression\ResolvesToInt {
     return Expression::min(
         Expression::dateDiff(
-            startDate: $previousReportDate,
-            endDate: $reportDate,
+            startDate: $startDate,
+            endDate: $endDate,
             unit: 'second',
         ),
-        self::computeElapsedSecondsOnDay($reportDate),
+        self::computeElapsedSecondsOnDay($endDate),
     );
 }
 ```
@@ -638,7 +647,7 @@ This would include all the logic included in the pipeline. By extracting complex
 parts into separate methods, you can test those in isolation under controlled
 conditions, knowing that they behave as you intended. Looking at the last
 example where we've extracted the expression that computes the duration between
-two dates, you can now easily verify that all the individual parts of that
+two dates, you can now better verify that all the individual parts of that
 complex expression work as expected.
 
 Just beware of premature abstractions: extract complex logic with the goal of
@@ -656,12 +665,12 @@ but they allow us to know what types an expression will resolve to.
 For an example, let's take the `$hour` operator. When you use
 `Expression::hour`, you will receive an instance of an `HourOperator` class.
 This class implements an `OperatorInterface`, telling the builder that this is
-an operator that can be used in aggregation pipeline. It also implements a
-`ResolvesToInt` interface, as we always know that evaluating the expression
-results in an integer value. The required `date` parameter of the operator is a
-date, which in the builder is one of many things. It could be a BSON
-`UTCDateTime` instance, but it could also be the result of any operator that
-returns a date, e.g. `$dateFromString`.
+an operator that can be used in an aggregation pipeline stage. It also
+implements a `ResolvesToInt` interface, as we always know that evaluating the
+expression results in an integer value. The required `date` parameter of the
+operator is a date, which in the builder is one of many things. It could be a
+`MongoDB\BSON\UTCDateTime` instance, but it could also be the result of any
+operator that returns a date, e.g. `$dateFromString`.
 
 Now that we know about these value holder objects, we still need to make sure
 the server knows what we're talking about. When you call `Collection::aggregate`
@@ -674,8 +683,8 @@ representations.
 This allows us to keep the logic customizable. For example, the Doctrine MongoDB
 ODM allows users to specify different names for fields in the database. In turn,
 it needs to convert the name of a property in the mapped class to the name of
-the field in the database. Such a feature could easily be built by creating a
-custom encoder for all `fieldPath` expressions, and changing the field path
+the field in the database. Such a feature could be built by creating a custom
+encoder for all `fieldPath` expressions, and changing the field path
 accordingly.
 
 When creating a `MongoDB\Client` instance, you can now pass an additional
@@ -690,7 +699,7 @@ With factories, value holders, and encoders, we wanted to ensure that creating
 the builder does not turn into a repetitive chore. As you can imagine, many
 operators will mostly consist of the same logic, resulting in tons of code
 duplication. To make matters worse, every new server version may introduce new
-operators and stages, so we wanted to make sure that we can easily expand
+operators and stages, so we wanted to make sure that we can quickly expand
 the builder.
 
 We could try to rely on generative AI to help us with this, but this only goes
@@ -706,7 +715,6 @@ before and adds them to the tests. In these tests, we manually write the builder
 code that would generate the pipeline or expression from the example. This
 ensures that the generated logic behaves as we expect, is protected from
 regression should we make any changes to the generator, and it allows us to use
-the builder and feel what it's like. To top it all off, we could add this code
-to the server documentation, similar to how we add other language-specific code
-snippets. We're not quite there yet, but we'd love to include this in the
-documentation.
+the builder and feel what it's like. Ultimately, we love to add this builder
+code to the server documentation, similar to how we add other language-specific
+code snippets, but we're not quite there yet.
