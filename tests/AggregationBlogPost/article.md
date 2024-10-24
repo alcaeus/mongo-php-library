@@ -3,13 +3,13 @@
 The aggregation framework is a powerful tool in your MongoDB toolbox. It allows
 you to run complex queries on your data, shaping and modifying documents to suit
 your needs. This power comes through a lot of different pipeline stages and
-operators, which comes with a certain learning challenge. MongoDB Compass comes
-with an aggregation pipeline builder that allows you to see results in real-time
+operators, which in turn brings a certain learning challenge. MongoDB Compass
+includes an aggregation pipeline builder that allows you to see results in real-time
 for each stage and fix mistakes early on. Once your pipeline is complete, you
 can export the pipeline to your language and use it in your code. In the PHP
-driver, from now on your pipeline lives as an array, completely untyped, and
-sometimes a relatively complex structure of stages and operators. As an example,
-let's take this pipeline from one of my projects:
+driver, that pipeline would live on as an array, completely untyped, and
+sometimes with a relatively complex structure of stages and operators. Let's
+take this pipeline from one of my projects as an example:
 
 ```php
 $pipeline = [
@@ -78,7 +78,7 @@ $pipeline = [
 ];
 ```
 
-Phew, that's a lot of logic. To better understand what this pipeline does, let's
+That's a lot of logic! To better understand what this pipeline does, let's
 look at a single source document:
 
 ```json
@@ -93,7 +93,7 @@ look at a single source document:
 ```
 
 I've left out some fields that we're not using right now. The aggregation
-pipeline aggregates all of these documents, producing a document for each day:
+pipeline aggregates all of these documents, producing a document for each month:
 
 ```json
 {
@@ -122,17 +122,17 @@ Without going into more details on this, even if we were to comment on parts of
 the aggregation pipeline to explain what it does, there will still be a high
 cognitive load when going through the aggregation pipeline. One reason for this
 is that any PHP editor will not know that this is an aggregation pipeline, and
-thus can't provide any better syntax highlighting other than "this is a string
-in an array". Couple that with a few levels of nesting, and you've got yourself
+thus can't provide much help beyond syntax highlighting (e.g. "this is a string
+in an array"). Couple that with a few levels of nesting, and you've got yourself
 this magical kind of code that you can write, but not read. We can of course
 refactor this code, but before we get into that, we want to move away from these
 array structures.
 
 ## Introducing the Aggregation Pipeline Builder
 
-Previously released as a standalone package, version 1.21 of the MongoDB Driver
-for PHP now comes with a fully grown aggregation pipeline builder. Instead of
-writing complex arrays, you now get factory methods to generate pipeline stages
+Previously released as a standalone package, version 1.21 of the MongoDB PHP
+driver now includes a comprehensive aggregation pipeline builder. Instead of
+writing complex arrays, you can use factory methods to generate pipeline stages
 and operators. Here is that same pipeline as we had before, this time written
 with the aggregation pipeline builder:
 
@@ -199,9 +199,10 @@ $pipeline = new Pipeline(
 );
 ```
 
-Ok, this is still a complex pipeline, and we'll be working on this, but it now
-becomes significantly easier to look at and differentiate operators from field
-names, etc.
+This is still a complex pipeline, but compared to the original array example
+it is now much easier to infer the context of each pipeline component. Operators
+are clearly differentiated from field names, and this typing can enable code
+editors and tooling to better assist the developer.
 
 To run an aggregation pipeline, you can pass a `Pipeline` instance to any method
 that can receive an aggregation pipeline, such as `Collection::aggregate` or
@@ -217,24 +218,23 @@ to represent the somewhat flexible type system and give better guidance to users
 when writing aggregation pipelines. That's why you will see expressions like
 `dateFieldPath`, `doubleFieldPath`, or `arrayFieldPath`. Each expression
 resolves to a certain type when it's evaluated. For example, we know that the
-`$year` operator expression resolves to an integer. The argument is an
+`$year` operator expression resolves to an integer, and its argument is an
 expression that resolves to a date, timestamp, or ObjectId. While we could use
-`$reportDate` to use the `reportDate` field from the document being evaluated,
+`$reportDate` to reference the `reportDate` field of the document being evaluated,
 `dateFieldPath` is more expressive and shows intent of receiving a date field.
 This also allows IDEs like PhpStorm to make better suggestions when offering
 code completion.
 
 For all expressions, there are factory classes with methods to create the
 expression objects. The use of static methods makes the code a little more
-verbose, but using functions was impossible due to aggregation pipeline using
-operator names that are reserved keywords in PHP (such as `and`, `if`, and
-`switch`). I'll show alternatives to using these static methods later in this
-blog post.
+verbose, but using functions was impossible due to conflicts between aggregation
+operator names and reserved keywords in PHP (e.g. `and`, `if`, `switch`). I'll
+show alternatives to using these static methods later in this blog post.
 
 ## Bonus Feature: Query Objects
 
 As a side effect of building the aggregation pipeline builder, there's now also
-a builder for query objects. This is because the `$match` stage takes a query
+a builder for query filters. This is because the `$match` stage takes a query
 object, and to avoid falling back to query arrays like you would pass them to
 `Collection::find`, we also built a builder for query objects. Here you see an
 example of a `find` call, along with the same query specified using the builder:
@@ -253,7 +253,8 @@ $collection->find(
 ```
 
 While this is a little more verbose, it provides a more expressive API than PHP
-array structures do. It's up to you to decide which option you like better.
+array structures and brings the same improvements for IDEs and tooling. It's
+up to you to decide which option you like better.
 
 ## Refactoring For Better Maintainability
 
@@ -262,10 +263,10 @@ array structures do. It's up to you to decide which option you like better.
 With the basic builder details explained, there's still one problem: the builder
 helps you write a pipeline, but it doesn't really make existing pipelines more
 maintainable. Yes, it makes them easier to read, but a complex pipeline will
-remain just as complex. So, let's discuss some refactorings we can make to make
-the aggregation pipeline easier to read, but also to make parts of the pipeline
-reusable. Note that all of these example apply the same way to pipelines written
-as PHP arrays, but I'll use the aggregation builder in the example.
+remain just as complex. So, let's discuss some refactorings we can make to both
+improve the pipeline's readability and make parts of the pipeline more reusable.
+Note that although the following example uses the aggregation builder, the same
+suggestions can also be applied to pipelines written as PHP arrays.
 
 Let's look at the first `$group` stage in the original example:
 
@@ -284,8 +285,8 @@ Stage::group(
 );
 ```
 
-As you can see, we use the `reportDate` and `price` fields multiple times. An
-obvious refactoring would be to extract a variable for this:
+As you can see, we reference the `reportDate` and `price` fields multiple times.
+A quick refactoring would be to extract those to variables:
 
 ```php
 $reportDate = Expression::dateFieldPath('reportDate');
@@ -305,9 +306,8 @@ Stage::group(
 );
 ```
 
-The `fuelType` and `station.brand` fields could be extracted as well. Since
-these are only used once, I didn't do that, but you may want to do so to favour
-consistency.
+The `fuelType` and `station.brand` fields could be extracted as well. I opted not
+to since they are only used once, but you may want to do so in favor of consistency.
 
 ### Comments Or Methods
 
@@ -361,8 +361,8 @@ fuel types with their prices, which is then converted to an object in
 `$addFields`. Ideally, we want to hide this implementation detail and extract
 both stages together.
 
-To do so, we once again extract a factory method, except that this time we'll be
-returning a `Pipeline` instance:
+To do so, we once again extract a factory method, except that this time we'll
+return a `Pipeline` instance:
 
 ```php
 public static function groupAndAssembleFuelTypePriceObject(
@@ -401,7 +401,7 @@ public static function groupAndAssembleFuelTypePriceObject(
 }
 ```
 
-By once again keeping fields as parameters, we keep the method flexible and
+By once again keeping fields as parameters, the method remains flexible and we
 allow using it in a pipeline that produces slightly different documents up to
 this point. Since the method works independently of how we group documents, we
 also keep the identifier as a parameter. Using this method further simplifies
@@ -468,7 +468,7 @@ $pipeline = new Pipeline(
 
 So far, we've only extracted entire pipeline stages that contain relatively
 simple expressions. Sometimes your aggregation pipeline will contain a more
-complex expression. From the same project that I took the previous example from,
+complex expression. From the same project that yielded the previous example,
 there's also this gem that is part of a pipeline that computes the weighted
 average price for each day:
 
@@ -519,8 +519,7 @@ $pipeline = [
 ];
 ```
 
-Once again, the builder can make this a little more concise, but the complexity
-remains:
+The builder can make this a little more concise, but the complexity remains:
 
 ```php
 $prices = Expression::arrayFieldPath('prices');
@@ -603,7 +602,7 @@ public static function computeDurationBetweenDates(
 }
 ```
 
-Again, this reduces the complexity of the pipeline stage tremendously:
+This reduces the complexity of the pipeline stage tremendously:
 
 ```php
 $prices = Expression::arrayFieldPath('prices');
@@ -667,7 +666,7 @@ returns a date, e.g. `$dateFromString`.
 Now that we know about these value holder objects, we still need to make sure
 the server knows what we're talking about. When you call `Collection::aggregate`
 with the pipeline you built, what happens internally to it? Here, a series of
-encoders springs into action. We use a single entry point, the `BuilderEncoder`
+encoders spring into action. We use a single entry point, the `BuilderEncoder`
 class. This class contains multiple encoders that are able to handle all
 pipeline stages, operators, and accumulators and transform them into their BSON
 representations.
@@ -682,16 +681,16 @@ accordingly.
 When creating a `MongoDB\Client` instance, you can now pass an additional
 `builderEncoder` option in the `$driverOptions` argument. This specifies the
 encoder used to encode aggregation pipelines, but also query objects. All
-`Database` and `Client` instances inherit this value from the client, but you
-can override it through the options when fetching such an instance. This allows
+`Database` and `Collection` instances inherit this value from the client, but you
+can override it through the options when selecting those objects. This allows
 you to have your custom logic applied whenever pipelines or queries are encoded
 for the server.
 
 With factories, value holders, and encoders, we wanted to ensure that creating
 the builder does not turn into a repetitive chore. As you can imagine, many
 operators will mostly consist of the same logic, resulting in tons of code
-duplication. To make matters worse, every new server version adds some new
-operators or even stages, so we wanted to make sure that we can easily expand
+duplication. To make matters worse, every new server version may introduce new
+operators and stages, so we wanted to make sure that we can easily expand
 the builder.
 
 We could try to rely on generative AI to help us with this, but this only goes
@@ -699,7 +698,7 @@ so far. Instead, we leverage code generation to make the task easier. All
 factories, value holders, and encoders are generated from a configuration. When
 a new operator is introduced, we create a config file with all of its details:
 input types, what the operator resolves to, documentation for parameters, and
-even the examples from the documentation are included. We then run the
+even examples from the MongoDB documentation. We then run the
 generator, and are given all code necessary to use the operator.
 
 As if that wasn't good enough, the generator also takes the examples we added
