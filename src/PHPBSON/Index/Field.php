@@ -108,7 +108,12 @@ final class Field
                 break;
 
             case Type::BINARY:
-                $data = $this->unpackWithChecks('Csubtype/Z' . ($this->dataLength - 1) . 'data', $bson, $this->dataOffset);
+                $data = $this->unpackWithChecks('Csubtype/a' . ($this->dataLength - 1) . 'data', $bson, $this->dataOffset);
+
+                /* subtype 2 has a redundant length header in the data */
+                if ((int) $data['subtype'] === Binary::TYPE_OLD_BINARY) {
+                    $data['data'] = substr($data['data'], 4);
+                }
 
                 $this->value = new \MongoDB\PHPBSON\Binary($data['data'], (int) $data['subtype']);
                 break;

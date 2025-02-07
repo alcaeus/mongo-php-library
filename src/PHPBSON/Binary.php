@@ -3,6 +3,7 @@
 namespace MongoDB\PHPBSON;
 
 use MongoDB\BSON\BinaryInterface;
+use function base64_encode;
 
 final class Binary implements BinaryInterface, Type
 {
@@ -46,8 +47,7 @@ final class Binary implements BinaryInterface, Type
 
     public function toCanonicalExtendedJSON(): string
     {
-        // TODO: Format type as hex
-        return sprintf('{ "$binary" : {"base64" : "%s", "subType" : "%02d"}}', base64_encode($this->data), $this->type);
+        return sprintf('{ "$binary" : {"base64" : "%s", "subType" : "%02x"}}', base64_encode($this->data), $this->type);
     }
 
     public function toRelaxedExtendedJSON(): string
