@@ -122,11 +122,11 @@ Without going into more details on this, even if we were to comment on parts of
 the aggregation pipeline to explain what it does, there will still be a high
 cognitive load when going through the aggregation pipeline. One reason for this
 is that the only way to express the aggregation framework domain-specific
-language (DSL) is through untyped arrays, and any PHP editor can't provide much
+language (DSL) is through untyped arrays, for which a PHP editor provides little
 help beyond syntax highlighting. Pair that with a few levels of nesting, and
 you've got yourself the kind of code that you can write, but not read. We could
 start off by refactoring the code, but instead let's try to move away from array
-structures and use a better solution.
+structures and towards a better solution.
 
 ## Introducing the Aggregation Pipeline Builder
 
@@ -743,9 +743,9 @@ function _match(...) {}
 function _switch(...) {}
 ```
 
-We also decided against this option, partly because the underscore marks (or at
-least used to mark) private functions or methods, but also because the
-underscore would break alphabetical sorting in code completion.
+We also decided against this option, partly because underscores have
+historically been used to mark private methods and properties, but also
+because the underscore would break alphabetical sorting in code completion.
 
 A less-than-serious approach was to use emojis, which I learned was valid in
 PHP:
@@ -789,7 +789,7 @@ $group(
 );
 ```
 
-Again, PHP's use of `$` to mark variables plays nice with aggregation pipeline
+Again, PHP's use of `$` to mark variables plays nice with the aggregation framework
 using it for stages and operators. We have considered adding a method to each
 factory class that would return an array of closures to make this easier:
 
@@ -800,5 +800,5 @@ factory class that would return an array of closures to make this easier:
 extract(Accumulator::accumulators());
 ```
 
-We have not implemented this for now, but if you prefer this syntax to static
+We have decided not implemented this for now, but if you prefer this syntax to static
 methods, or if you have alternative suggestions, please let us know about them!
