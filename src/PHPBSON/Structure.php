@@ -64,10 +64,7 @@ abstract class Structure implements ArrayAccess, Stringable, Type
 
     abstract public function toCanonicalExtendedJSON(): string;
 
-    public function toRelaxedExtendedJSON(): string
-    {
-        throw new Exception('Not implemented');
-    }
+    abstract public function toRelaxedExtendedJSON(): string;
 
     public function offsetExists(mixed $offset): bool
     {
@@ -110,7 +107,7 @@ abstract class Structure implements ArrayAccess, Stringable, Type
         }
     }
 
-    protected function formatValueForJson(mixed $value): string
+    protected function formatValueForCanonicalExtendedJson(mixed $value): string
     {
         if ($value instanceof Type) {
             return $value->toCanonicalExtendedJSON();
@@ -137,6 +134,25 @@ abstract class Structure implements ArrayAccess, Stringable, Type
         }
 
         throw new Exception('Unsupported field type ' . get_debug_type($value));
+    }
+
+    protected function formatValueForRelaxedExtendedJson(mixed $value): string
+    {
+        if (is_int($value)) {
+            // TODO: Handle 64 bit values
+            return sprintf('%d', $value);
+        }
+
+        if (is_float($value)) {
+            // TODO: Formatting of float values
+            return sprintf('%.13f', $value);
+        }
+
+        if ($value instanceof Type) {
+            return $value->toRelaxedExtendedJSON();
+        }
+
+        return $this->formatValueForCanonicalExtendedJson($value);
     }
 
     protected function getIndex(): Index

@@ -2,12 +2,14 @@
 
 namespace MongoDB\PHPBSON;
 
+use Closure;
 use MongoDB\BSON\Document as BSONDocument;
 use MongoDB\PHPBSON\Index\DocumentIndex;
 use MongoDB\PHPBSON\Index\Field;
 use function addslashes;
 use function array_map;
 use function implode;
+use function json_encode;
 use function sprintf;
 
 final class Document extends Structure
@@ -41,24 +43,34 @@ final class Document extends Structure
 
     public function toCanonicalExtendedJSON(): string
     {
+        return $this->toExtendedJSON($this->formatValueForCanonicalExtendedJson(...));
+    }
+
+    public function toRelaxedExtendedJSON(): string
+    {
+        return $this->toExtendedJSON($this->formatValueForRelaxedExtendedJson(...));
+    }
+
+    protected function createIndex(): DocumentIndex
+    {
+        return new DocumentIndex($this, (new Indexer())->getIndex($this->bson));
+    }
+
+    private function toExtendedJSON(Closure $formatter): string
+    {
         return sprintf(
             '{%s}',
             implode(
                 ', ',
                 array_map(
                     fn(Field $field): string => sprintf(
-                        '"%s" : %s',
-                        addslashes($field->key),
-                        $this->formatValueForJson($field->getValue()),
+                        '%s : %s',
+                        json_encode($field->key),
+                        $formatter($field->getValue()),
                     ),
                     $this->getIndex()->fields,
                 ),
             ),
         );
-    }
-
-    protected function createIndex(): DocumentIndex
-    {
-        return new DocumentIndex($this, (new Indexer())->getIndex($this->bson));
     }
 }

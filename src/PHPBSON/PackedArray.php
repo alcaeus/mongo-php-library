@@ -2,6 +2,7 @@
 
 namespace MongoDB\PHPBSON;
 
+use Closure;
 use MongoDB\BSON\Document as BSONDocument;
 use MongoDB\BSON\PackedArray as BSONPackedArray;
 use MongoDB\PHPBSON\Index\Field;
@@ -44,12 +45,22 @@ final class PackedArray extends Structure
 
     public function toCanonicalExtendedJSON(): string
     {
+        return $this->toExtendedJSON($this->formatValueForCanonicalExtendedJson(...));
+    }
+
+    public function toRelaxedExtendedJSON(): string
+    {
+        return $this->toExtendedJSON($this->formatValueForRelaxedExtendedJson(...));
+    }
+
+    private function toExtendedJSON(Closure $formatter): string
+    {
         return sprintf(
             '[%s]',
             implode(
                 ', ',
                 array_map(
-                    fn (Field $field): string => $this->formatValueForJson($field->getValue()),
+                    fn (Field $field): string => $formatter($field->getValue()),
                     $this->getIndex()->fields,
                 ),
             ),

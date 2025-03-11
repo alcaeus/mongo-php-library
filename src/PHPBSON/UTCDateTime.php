@@ -6,43 +6,52 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use MongoDB\BSON\UTCDateTimeInterface;
+use MongoDB\Exception\InvalidArgumentException;
+use function date_format;
+use function json_encode;
 
 final class UTCDateTime implements UTCDateTimeInterface, Type
 {
     // TODO: Store Int64 instance?
     public readonly int $milliseconds;
+    private readonly DateTimeImmutable $dateTime;
+
+    /**
+     * The timestamp in milliseconds of 9999-12-31T23:59:59Z, aka the latest
+     * date represented as ISO-8601 in relaxed extended JSON.
+     */
+    private const DEC_31st_9999 = 253_402_300_799_999;
 
     final public function __construct(int|string|float|DateTimeInterface|null $milliseconds = null)
     {
+        if ($milliseconds === null) {
+            $milliseconds = new DateTimeImmutable($milliseconds);
+        }
+
+        if ($milliseconds instanceof DateTimeInterface) {
+            $this->dateTime = DateTimeImmutable::createFromInterface($milliseconds);
+            $this->milliseconds = (int) $milliseconds->format('Uv');
+            return;
+        }
+
         if (is_string($milliseconds)) {
             // TODO: 64-bit handling
             $this->milliseconds = (int) $milliseconds;
             return;
         }
 
-        if ($milliseconds === null) {
-            $milliseconds = new DateTimeImmutable($milliseconds);
-        }
-
-        if ($milliseconds instanceof DateTimeInterface) {
-            // TODO: yeah......about this code...
-            $microseconds = $milliseconds->format('Uu');
-            $milliseconds = substr($microseconds, -3);
-            $this->milliseconds = (int) $milliseconds;
-            return;
-        }
-
         $this->milliseconds = (int) $milliseconds;
+        $this->dateTime = $this->createDateTime($milliseconds);
     }
 
     public function toDateTime(): DateTime
     {
-        // TODO: Implement toDateTime() method.
+        return DateTime::createFromImmutable($this->dateTime);
     }
 
     public function toDateTimeImmutable(): DateTimeImmutable
     {
-        // TODO: Implement toDateTimeImmutable() method.
+        return $this->dateTime;
     }
 
     public function __toString(): string
@@ -57,6 +66,25 @@ final class UTCDateTime implements UTCDateTimeInterface, Type
 
     public function toRelaxedExtendedJSON(): string
     {
-        // TODO: Implement toRelaxedExtendedJSON() method.
+        if ($this->milliseconds < 0 || $this->milliseconds > self::DEC_31st_9999) {
+            return $this->toCanonicalExtendedJSON();
+        }
+
+        // TODO PHP 8.4: Use getMicrosecond
+        return (int) $this->dateTime->format('v')
+            ? sprintf('{"$date" : %s}', json_encode($this->dateTime->format('Y-m-d\TH:i:s.vp')))
+            : sprintf('{"$date" : %s}', json_encode($this->dateTime->format('Y-m-d\TH:i:sp')));
+    }
+
+    private function createDateTime(float|int|string $milliseconds): DateTimeImmutable
+    {
+        $millisecondString = sprintf('%04d', $milliseconds);
+
+        $dateTime = DateTimeImmutable::createFromFormat('U v', substr($millisecondString, 0, -3) . ' ' . substr($millisecondString, -3));
+        if (! $dateTime) {
+            throw new InvalidArgumentException(sprintf('Invalid value for UTCDateTime given: %04d', $milliseconds));
+        }
+
+        return $dateTime;
     }
 }

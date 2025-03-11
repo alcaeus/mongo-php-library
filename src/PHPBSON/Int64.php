@@ -13,6 +13,6 @@ final class Int64 implements Type
 
     public function toRelaxedExtendedJSON(): string
     {
-        // TODO: Implement toRelaxedExtendedJSON() method.
+        return sprintf('%d', $this->value);
     }
 }

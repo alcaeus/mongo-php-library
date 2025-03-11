@@ -26,7 +26,7 @@ final class CorpusTest extends TestCase
     static array $skippedFiles = ['decimal128-1.json', 'decimal128-2.json', 'decimal128-3.json', 'decimal128-4.json', 'decimal128-5.json'];
 
     /** @dataProvider provideValidTests */
-    public function testCanonicalBson(
+    public function testCanonicalBsonToCanonicalExtendedJson(
         string $canonicalBson,
         string $canonicalExtJson,
         string $relaxed_extjson,
@@ -45,6 +45,26 @@ final class CorpusTest extends TestCase
         );
     }
 
+    /** @dataProvider provideValidTestsWithRelaxedExtendedJson */
+    public function testCanonicalBsonToRelaxedExtendedJson(
+        string $canonicalBson,
+        string $canonicalExtJson,
+        string $relaxed_extjson,
+        string $degenerate_bson,
+        string $degenerate_extjson,
+        string $converted_bson,
+        string $converted_extjson,
+        bool $lossy,
+    ): void {
+        $document = Document::fromBSON(hex2bin($canonicalBson));
+        self::assertSame(hex2bin($canonicalBson), (string) $document);
+
+        self::assertSame(
+            $this->canonicalizeJson($relaxed_extjson),
+            $this->canonicalizeJson($document->toRelaxedExtendedJSON()),
+        );
+    }
+
     /**
      * @dataProvider provideDegenerateBsonTests
      * @doesNotPerformAssertions
@@ -59,7 +79,12 @@ final class CorpusTest extends TestCase
         string $converted_extjson,
         bool $lossy,
     ): void {
-        Document::fromBSON(hex2bin($degenerate_bson));
+        $document = Document::fromBSON(hex2bin($degenerate_bson));
+
+        self::assertSame(
+            $canonicalBson,
+            (string) $document,
+        );
     }
 
     public static function provideDegenerateBsonTests(): array
@@ -86,6 +111,14 @@ final class CorpusTest extends TestCase
         return array_map(
             fn (array $test) => array_intersect_key(array_merge($emptyTest, $test), $emptyTest),
             self::provideTests(__DIR__ . '/bson-corpus/*.json', 'valid'),
+        );
+    }
+
+    public function provideValidTestsWithRelaxedExtendedJson(): array
+    {
+        return array_filter(
+            self::provideValidTests(),
+            fn (array $test): bool => ($test['relaxed_extjson'] ?? '') !== ''
         );
     }
 
