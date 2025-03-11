@@ -127,7 +127,7 @@ abstract class Structure implements ArrayAccess, Stringable, Type
 
         if (is_float($value)) {
             // TODO: Formatting of float values
-            return sprintf('{"$numberDouble": "%f"}', $value);
+            return sprintf('{"$numberDouble": "%.13f"}', $value);
         } if (is_bool($value)) {
             return $value ? 'true' : 'false';
         }
