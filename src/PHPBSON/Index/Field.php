@@ -87,15 +87,27 @@ final class Field
                 break;
 
             case Type::STRING:
-                $this->value = $this->unpackWithChecks('Z' . $this->dataLength . 'data', $bson, $this->dataOffset, 'data');
+                $this->value = $this->unpackWithChecks('a' . $this->dataLength . 'data', $bson, $this->dataOffset, 'data');
                 break;
 
             case Type::CODE:
-                $code = $this->unpackWithChecks('Z' . $this->dataLength . 'data', $bson, $this->dataOffset, 'data');
+                $code = $this->unpackWithChecks('a' . $this->dataLength . 'data', $bson, $this->dataOffset, 'data');
                 $this->value = new \MongoDB\PHPBSON\Javascript($code);
                 break;
 
+            case Type::CODEWITHSCOPE:
+                $codeLength = (int) $this->unpackWithChecks('Vlength', $bson, $this->dataOffset, 'length');
+
+                // $codeLength includes the trailing NUL byte - make sure we exclude that when reading data
+                $code = $this->unpackWithChecks('a' . ($codeLength - 1) . 'data', $bson, $this->dataOffset + 4, 'data');
+                $scope = Document::fromBSON(substr($bson, $this->dataOffset + 4 + $codeLength, $this->dataLength - $codeLength - 4));
+
+                // TODO: Scope may not properly handle BSON documents
+                $this->value = new \MongoDB\PHPBSON\Javascript($code, $scope);
+                break;
+
             case Type::SYMBOL:
+                // @todo: Unpack this?
                 $this->value = new \MongoDB\PHPBSON\Symbol(substr($bson, $this->dataOffset, $this->dataLength));
                 break;
 
@@ -174,16 +186,6 @@ final class Field
 
                 $data = $this->unpackWithChecks('Z' . $refLength . 'ref/Z12id', $bson, $this->dataOffset + 4);
                 $this->value = new \MongoDB\PHPBSON\DBPointer($data['ref'], bin2hex($data['id']));
-                break;
-
-            case Type::CODEWITHSCOPE:
-                $codeLength = (int) $this->unpackWithChecks('Vlength', $bson, $this->dataOffset, 'length');
-
-                $code = $this->unpackWithChecks('Z' . $codeLength . 'data', $bson, $this->dataOffset + 4, 'data');
-                $scope = Document::fromBSON(substr($bson, $this->dataOffset + 4 + $codeLength, $this->dataLength - $codeLength - 4));
-
-                // TODO: Scope may not properly handle BSON documents
-                $this->value = new \MongoDB\PHPBSON\Javascript($code, $scope);
                 break;
 
             case Type::INT32:

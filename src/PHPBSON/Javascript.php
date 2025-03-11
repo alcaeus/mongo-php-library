@@ -30,8 +30,8 @@ class Javascript implements Type, JavascriptInterface
     public function toCanonicalExtendedJSON(): string
     {
         return $this->scope !== null
-            ? sprintf('{"$code" : "%s", "$scope" : %s}', addslashes($this->code), $this->scope->toCanonicalExtendedJSON())
-            : sprintf('{"$code" : "%s"}', addslashes($this->code));
+            ? sprintf('{"$code" : %s, "$scope" : %s}', json_encode($this->code), $this->scope->toCanonicalExtendedJSON())
+            : sprintf('{"$code" : %s}', json_encode($this->code));
     }
 
     public function toRelaxedExtendedJSON(): string

@@ -3,6 +3,7 @@
 namespace MongoDB\PHPBSON;
 
 use function addslashes;
+use function json_encode;
 
 class Symbol implements Type
 {
@@ -12,7 +13,7 @@ class Symbol implements Type
 
     public function toCanonicalExtendedJSON(): string
     {
-        return sprintf('{"$symbol": "%s"}', addslashes($this->symbol));
+        return sprintf('{"$symbol": %s}', json_encode($this->symbol));
     }
 
     public function toRelaxedExtendedJSON(): string

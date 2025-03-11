@@ -85,7 +85,7 @@ class Indexer
                 // Skip over the string length
                 $dataOffset = $newOffset + 4;
 
-                $data = @unpack('Z' . $dataLength, $bson, $dataOffset);
+                $data = @unpack('a' . $dataLength, $bson, $dataOffset);
                 if ($data === false) {
                     throw new InvalidArgumentException('Invalid BSON data');
                 }

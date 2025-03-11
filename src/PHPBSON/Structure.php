@@ -17,6 +17,7 @@ use function is_float;
 use function is_int;
 use function is_null;
 use function is_string;
+use function json_encode;
 use function sprintf;
 use function strlen;
 use function substr;
@@ -116,7 +117,7 @@ abstract class Structure implements ArrayAccess, Stringable, Type
         }
 
         if (is_string($value)) {
-            return sprintf('"%s"', addslashes($value));
+            return json_encode($value);
         }
 
         if (is_int($value)) {
