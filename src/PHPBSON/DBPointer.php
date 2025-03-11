@@ -14,7 +14,7 @@ final class DBPointer implements Type
 
     public function toCanonicalExtendedJSON(): string
     {
-        return sprintf('{"$dbPointer": {"$ref": "%s", "$id": {"$oid": "%s"}}', $this->ref, $this->oid);
+        return sprintf('{"$dbPointer": {"$ref": "%s", "$id": {"$oid": "%s"}}}', $this->ref, $this->oid);
     }
 
     public function toRelaxedExtendedJSON(): string
