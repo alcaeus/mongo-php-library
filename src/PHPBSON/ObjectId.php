@@ -24,12 +24,12 @@ final class ObjectId implements ObjectIdInterface, Type
         $this->id = $id;
     }
 
-    public function getTimestamp()
+    public function getTimestamp(): int
     {
         // TODO: Implement getTimestamp() method.
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->id;
     }

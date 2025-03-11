@@ -12,17 +12,17 @@ final class Timestamp implements TimestampInterface, Type
         public readonly int $timestamp,
     ) {}
 
-    public function getIncrement()
+    public function getIncrement(): int
     {
         return $this->increment;
     }
 
-    public function getTimestamp()
+    public function getTimestamp(): int
     {
         return $this->timestamp;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         // TODO: Implement __toString() method.
     }

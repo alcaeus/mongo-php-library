@@ -2,6 +2,7 @@
 
 namespace MongoDB\PHPBSON;
 
+use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use MongoDB\BSON\UTCDateTimeInterface;
@@ -34,12 +35,17 @@ final class UTCDateTime implements UTCDateTimeInterface, Type
         $this->milliseconds = (int) $milliseconds;
     }
 
-    public function toDateTime()
+    public function toDateTime(): DateTime
     {
         // TODO: Implement toDateTime() method.
     }
 
-    public function __toString()
+    public function toDateTimeImmutable(): DateTimeImmutable
+    {
+        // TODO: Implement toDateTimeImmutable() method.
+    }
+
+    public function __toString(): string
     {
         // TODO: Implement __toString() method.
     }

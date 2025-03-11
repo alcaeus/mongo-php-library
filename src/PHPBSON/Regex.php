@@ -14,17 +14,17 @@ final class Regex implements RegexInterface, Type
     ) {
     }
 
-    public function getFlags()
+    public function getFlags(): string
     {
         return $this->flags;
     }
 
-    public function getPattern()
+    public function getPattern(): string
     {
         return $this->pattern;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf('/%s/%s', preg_quote($this->pattern, '/'), $this->flags);
     }
