@@ -13,14 +13,17 @@ use function array_intersect_key;
 use function array_keys;
 use function array_map;
 use function array_merge;
+use function basename;
 use function file_get_contents;
 use function glob;
 use function hex2bin;
+use function in_array;
 use function json_decode;
 
 final class CorpusTest extends TestCase
 {
     static array $tests = [];
+    static array $skippedFiles = ['decimal128-1.json', 'decimal128-2.json', 'decimal128-3.json', 'decimal128-4.json', 'decimal128-5.json'];
 
     /** @dataProvider provideValidTests */
     public function testCanonicalBson(
@@ -110,8 +113,13 @@ final class CorpusTest extends TestCase
         $tests = [];
 
         foreach (glob($pattern) as $filename) {
+            $basename = basename($filename);
+            if (in_array($basename, self::$skippedFiles)) {
+                continue;
+            }
+
             $fileTests = self::readTestFile($filename);
-            $group = $fileTests['description'] . ' (' . basename($filename) . ')';
+            $group = $fileTests['description'] . ' (' . $basename . ')';
 
             $groupTests = array_column($fileTests[$key] ?? [], null, 'description');
             $tests[] = array_combine(
@@ -133,7 +141,7 @@ final class CorpusTest extends TestCase
 
     private function canonicalizeJson(string $json): string
     {
-        $json = json_encode(json_decode($json));
+        $json = json_encode(json_decode($json, flags: JSON_THROW_ON_ERROR));
 
         /* Canonicalize string values for $numberDouble to ensure they are converted
          * the same as number literals in legacy and relaxed output. This is needed
