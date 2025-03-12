@@ -14,6 +14,7 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function basename;
+use function bin2hex;
 use function file_get_contents;
 use function glob;
 use function hex2bin;
@@ -67,7 +68,6 @@ final class CorpusTest extends TestCase
 
     /**
      * @dataProvider provideDegenerateBsonTests
-     * @doesNotPerformAssertions
      */
     public function testDegenerateBson(
         string $canonicalBson,
@@ -81,9 +81,11 @@ final class CorpusTest extends TestCase
     ): void {
         $document = Document::fromBSON(hex2bin($degenerate_bson));
 
+        // TODO: we have no intermediate representation, so degenerate BSON will
+        // end up being degenerate after creating a Document instance
         self::assertSame(
             $canonicalBson,
-            (string) $document,
+            bin2hex((string) $document),
         );
     }
 
