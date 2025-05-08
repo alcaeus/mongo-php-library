@@ -13,6 +13,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "latest"
           API_VERSION: "1"
 
   - name: "test-mongodb-latest-acceptApiVersion2"
@@ -27,6 +29,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "latest"
           TESTS: "versioned-api"
   - name: "test-mongodb-rapid-requireApiVersion"
     tags: ["standalone", "local", "rapid", "versioned_api", "pr", "tag"]
@@ -41,6 +45,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "rapid"
           API_VERSION: "1"
 
   - name: "test-mongodb-rapid-acceptApiVersion2"
@@ -55,6 +61,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "rapid"
           TESTS: "versioned-api"
   - name: "test-mongodb-8.0-requireApiVersion"
     tags: ["standalone", "local", "8.0", "versioned_api", "pr", "tag"]
@@ -69,6 +77,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "8.0"
           API_VERSION: "1"
 
   - name: "test-mongodb-8.0-acceptApiVersion2"
@@ -83,6 +93,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "8.0"
           TESTS: "versioned-api"
   - name: "test-mongodb-7.0-requireApiVersion"
     tags: ["standalone", "local", "7.0", "versioned_api", "pr", "tag"]
@@ -97,6 +109,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "7.0"
           API_VERSION: "1"
 
   - name: "test-mongodb-7.0-acceptApiVersion2"
@@ -111,6 +125,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "7.0"
           TESTS: "versioned-api"
   - name: "test-mongodb-6.0-requireApiVersion"
     tags: ["standalone", "local", "6.0", "versioned_api", "pr", "tag"]
@@ -125,6 +141,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "6.0"
           API_VERSION: "1"
 
   - name: "test-mongodb-6.0-acceptApiVersion2"
@@ -139,6 +157,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "6.0"
           TESTS: "versioned-api"
   - name: "test-mongodb-5.0-requireApiVersion"
     tags: ["standalone", "local", "5.0", "versioned_api", "pr", "tag"]
@@ -153,6 +173,8 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "5.0"
           API_VERSION: "1"
 
   - name: "test-mongodb-5.0-acceptApiVersion2"
@@ -167,4 +189,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
+          TOPOLOGY: "server"
+          MONGODB_VERSION: "5.0"
           TESTS: "versioned-api"
