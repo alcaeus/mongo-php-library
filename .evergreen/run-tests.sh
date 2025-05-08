@@ -107,6 +107,6 @@ case "$TESTS" in
       ;;
 
    *)
-      php vendor/bin/phpunit $PHPUNIT_OPTS
+      XDEBUG_MODE=coverage php vendor/bin/phpunit $PHPUNIT_OPTS
       ;;
 esac
