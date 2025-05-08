@@ -126,6 +126,30 @@ functions:
         # Uploading test results does not work when using ${PROJECT_DIRECTORY},
         # so we use an absolute path to work around this
         file: "src/test-results.xml"
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |-
+          curl -Os https://cli.codecov.io/latest/linux/codecov
+          sudo chmod +x codecov
+          [[ -f coverage.xml ]] && \
+            ./codecov upload-process \
+              --disable-search \
+              --fail-on-error \
+              --token ${CODECOV_TOKEN} \
+              --name ${build_variant}-${task_name} \
+              --flag "${MONGODB_VERSION}-${TOPOLOGY}" \
+              --file coverage.xml
+          [[ -f test-results.xml ]] && \
+            ./codecov upload-process \
+              --report-type test_results \
+              --disable-search \
+              --fail-on-error \
+              --token ${CODECOV_TOKEN} \
+              --name service-${build_variant}-${task_name} \
+              --flag "${MONGODB_VERSION}-${TOPOLOGY}" \
+              --file test-results.xml
     - command: attach.results
       params:
         file_location: "${DRIVERS_TOOLS}/results.json"
@@ -245,31 +269,6 @@ functions:
           SSL=${SSL} \
           TESTS=${TESTS} \
           bash ${PROJECT_DIRECTORY}/.evergreen/run-tests.sh
-    # Upload coverage
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |-
-          curl -Os https://cli.codecov.io/latest/linux/codecov
-          sudo chmod +x codecov
-          [[ -f coverage.xml ]] && \
-            ./codecov upload-process \
-              --disable-search \
-              --fail-on-error \
-              --token ${CODECOV_TOKEN} \
-              --name service-${build_variant}-${task_name} \
-              --flag "${MONGODB_VERSION}-${TOPOLOGY}" \
-              --file coverage.xml
-          [[ -f test-results.xml ]] && \
-            ./codecov upload-process \
-              --report-type test_results \
-              --disable-search \
-              --fail-on-error \
-              --token ${CODECOV_TOKEN} \
-              --name service-${build_variant}-${task_name} \
-              --flag "${MONGODB_VERSION}-${TOPOLOGY}" \
-              --file test-results.xml
 
   "run atlas data lake test":
     - command: shell.exec
