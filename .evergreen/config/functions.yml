@@ -68,8 +68,7 @@ functions:
         binary: bash
         args:
           - -c
-          - cp `${PHP_PATH}/bin/php -r "echo ini_get('extension_dir');"`/mongodb.so .
-          - cp `${PHP_PATH}/bin/php -r "echo ini_get('extension_dir');"`/xdebug.so .
+          - cp `${PHP_PATH}/bin/php -r "echo ini_get('extension_dir');"`/{mongodb,xdebug}.so .
     # Compress and upload the entire build directory
     - command: archive.targz_pack
       params:
@@ -108,8 +107,7 @@ functions:
         binary: bash
         args:
           - -c
-          - mv mongodb.so `${PHP_PATH}/bin/php -r "echo ini_get('extension_dir');"`
-          - mv xdebug.so `${PHP_PATH}/bin/php -r "echo ini_get('extension_dir');"`
+          - mv {mongodb,xdebug}.so `${PHP_PATH}/bin/php -r "echo ini_get('extension_dir');"`
 
   "prepare resources":
     - command: shell.exec
