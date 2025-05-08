@@ -69,6 +69,7 @@ functions:
         args:
           - -c
           - cp `${PHP_PATH}/bin/php -r "echo ini_get('extension_dir');"`/mongodb.so .
+          - cp `${PHP_PATH}/bin/php -r "echo ini_get('extension_dir');"`/xdebug.so .
     # Compress and upload the entire build directory
     - command: archive.targz_pack
       params:
@@ -76,6 +77,7 @@ functions:
         source_dir: src
         include:
           - "mongodb.so"
+          - "xdebug.so"
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -107,6 +109,7 @@ functions:
         args:
           - -c
           - mv mongodb.so `${PHP_PATH}/bin/php -r "echo ini_get('extension_dir');"`
+          - mv xdebug.so `${PHP_PATH}/bin/php -r "echo ini_get('extension_dir');"`
 
   "prepare resources":
     - command: shell.exec
@@ -450,6 +453,14 @@ functions:
         binary: bash
         args:
           - .evergreen/compile-extension.sh
+
+  "install xdebug":
+    - command: shell.exec
+      params:
+        shell: bash
+        working_dir: src
+        add_expansions_to_env: true
+        script: MAKEFLAGS=-j20 ${PHP_PATH}/bin/pecl install -f xdebug
 
   # Run benchmarks. The filter skips the benchAmpWorkers subjects as they fail due to socket exceptions
   "run benchmark":
