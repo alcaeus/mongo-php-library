@@ -11,8 +11,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "latest"
           TESTS: "csfle"
 
   - name: "test-mongodb-latest-mongocryptd"
@@ -27,8 +25,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "latest"
           TESTS: "csfle"
 
   - name: "test-mongodb-latest-no-aws-creds"
@@ -43,8 +39,6 @@ tasks:
         vars:
           client_side_encryption_aws_access_key_id: ""
           client_side_encryption_aws_secret_access_key: ""
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "latest"
           TESTS: "csfle-without-aws-creds"
   - name: "test-mongodb-rapid-crypt-shared"
     tags: ["replicaset", "local", "rapid", "csfle", "tag"]
@@ -57,8 +51,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "rapid"
           TESTS: "csfle"
 
   - name: "test-mongodb-rapid-mongocryptd"
@@ -73,8 +65,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "rapid"
           TESTS: "csfle"
 
   - name: "test-mongodb-rapid-no-aws-creds"
@@ -89,8 +79,6 @@ tasks:
         vars:
           client_side_encryption_aws_access_key_id: ""
           client_side_encryption_aws_secret_access_key: ""
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "rapid"
           TESTS: "csfle-without-aws-creds"
   - name: "test-mongodb-8.0-crypt-shared"
     tags: ["replicaset", "local", "8.0", "csfle", "tag"]
@@ -103,8 +91,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "8.0"
           TESTS: "csfle"
 
   - name: "test-mongodb-8.0-mongocryptd"
@@ -119,8 +105,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "8.0"
           TESTS: "csfle"
 
   - name: "test-mongodb-8.0-no-aws-creds"
@@ -135,8 +119,6 @@ tasks:
         vars:
           client_side_encryption_aws_access_key_id: ""
           client_side_encryption_aws_secret_access_key: ""
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "8.0"
           TESTS: "csfle-without-aws-creds"
   - name: "test-mongodb-7.0-crypt-shared"
     tags: ["replicaset", "local", "7.0", "csfle", "tag"]
@@ -149,8 +131,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "7.0"
           TESTS: "csfle"
 
   - name: "test-mongodb-7.0-mongocryptd"
@@ -165,8 +145,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "7.0"
           TESTS: "csfle"
 
   - name: "test-mongodb-7.0-no-aws-creds"
@@ -181,8 +159,6 @@ tasks:
         vars:
           client_side_encryption_aws_access_key_id: ""
           client_side_encryption_aws_secret_access_key: ""
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "7.0"
           TESTS: "csfle-without-aws-creds"
   - name: "test-mongodb-6.0-crypt-shared"
     tags: ["replicaset", "local", "6.0", "csfle", "tag"]
@@ -195,8 +171,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "6.0"
           TESTS: "csfle"
 
   - name: "test-mongodb-6.0-mongocryptd"
@@ -211,8 +185,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "6.0"
           TESTS: "csfle"
 
   - name: "test-mongodb-6.0-no-aws-creds"
@@ -227,8 +199,6 @@ tasks:
         vars:
           client_side_encryption_aws_access_key_id: ""
           client_side_encryption_aws_secret_access_key: ""
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "6.0"
           TESTS: "csfle-without-aws-creds"
   - name: "test-mongodb-5.0-crypt-shared"
     tags: ["replicaset", "local", "5.0", "csfle", "tag"]
@@ -241,8 +211,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "5.0"
           TESTS: "csfle"
 
   - name: "test-mongodb-5.0-mongocryptd"
@@ -257,8 +225,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "5.0"
           TESTS: "csfle"
 
   - name: "test-mongodb-5.0-no-aws-creds"
@@ -273,8 +239,6 @@ tasks:
         vars:
           client_side_encryption_aws_access_key_id: ""
           client_side_encryption_aws_secret_access_key: ""
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "5.0"
           TESTS: "csfle-without-aws-creds"
   - name: "test-mongodb-4.4-crypt-shared"
     tags: ["replicaset", "local", "4.4", "csfle", "tag"]
@@ -287,8 +251,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "4.4"
           TESTS: "csfle"
 
   - name: "test-mongodb-4.4-mongocryptd"
@@ -303,8 +265,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "4.4"
           TESTS: "csfle"
 
   - name: "test-mongodb-4.4-no-aws-creds"
@@ -319,8 +279,6 @@ tasks:
         vars:
           client_side_encryption_aws_access_key_id: ""
           client_side_encryption_aws_secret_access_key: ""
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "4.4"
           TESTS: "csfle-without-aws-creds"
   - name: "test-mongodb-4.2-crypt-shared"
     tags: ["replicaset", "local", "4.2", "csfle", "tag"]
@@ -333,8 +291,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "4.2"
           TESTS: "csfle"
 
   - name: "test-mongodb-4.2-mongocryptd"
@@ -349,8 +305,6 @@ tasks:
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "4.2"
           TESTS: "csfle"
 
   - name: "test-mongodb-4.2-no-aws-creds"
@@ -365,6 +319,4 @@ tasks:
         vars:
           client_side_encryption_aws_access_key_id: ""
           client_side_encryption_aws_secret_access_key: ""
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "4.2"
           TESTS: "csfle-without-aws-creds"

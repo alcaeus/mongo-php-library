@@ -8,9 +8,6 @@
       - func: "start kms servers"
       - func: "set aws temp creds"
       - func: "run tests"
-        vars:
-          TOPOLOGY: "server"
-          MONGODB_VERSION: "%mongodbVersion%"
 
   - name: "test-mongodb-%mongodbVersion%-replicaset-noauth-nossl"
     tags: ["replicaset", "local", "%mongodbVersion%", "pr", "tag"]
@@ -22,9 +19,6 @@
       - func: "start kms servers"
       - func: "set aws temp creds"
       - func: "run tests"
-        vars:
-          TOPOLOGY: "replica_set"
-          MONGODB_VERSION: "%mongodbVersion%"
 
   - name: "test-mongodb-%mongodbVersion%-sharded-noauth-nossl"
     tags: ["sharded", "local", "%mongodbVersion%", "tag"]
@@ -36,6 +30,3 @@
       - func: "start kms servers"
       - func: "set aws temp creds"
       - func: "run tests"
-        vars:
-          TOPOLOGY: "sharded_cluster"
-          MONGODB_VERSION: "%mongodbVersion%"

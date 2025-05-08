@@ -11,8 +11,6 @@
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "server"
-          MONGODB_VERSION: "%mongodbVersion%"
           API_VERSION: "1"
 
   - name: "test-mongodb-%mongodbVersion%-acceptApiVersion2"
@@ -27,6 +25,4 @@
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "server"
-          MONGODB_VERSION: "%mongodbVersion%"
           TESTS: "versioned-api"

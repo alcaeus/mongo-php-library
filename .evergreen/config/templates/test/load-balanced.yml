@@ -12,7 +12,5 @@
       - func: "set aws temp creds"
       - func: "run tests"
         vars:
-          TOPOLOGY: "sharded_cluster"
-          MONGODB_VERSION: "%mongodbVersion%"
           MONGODB_URI: "${SINGLE_MONGOS_LB_URI}"
           SSL: "yes"
