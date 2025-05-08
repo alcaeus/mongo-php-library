@@ -256,6 +256,15 @@ functions:
               --name service-${build_variant}-${task_name} \
               --flag "${MONGODB_VERSION}-${TOPOLOGY}" \
               --file coverage.xml
+          [[ -f test-results.xml ]] && \
+            ./codecov upload-process \
+              --report-type test_results \
+              --disable-search \
+              --fail-on-error \
+              --token ${CODECOV_TOKEN} \
+              --name service-${build_variant}-${task_name} \
+              --flag "${MONGODB_VERSION}-${TOPOLOGY}" \
+              --file test-results.xml
 
   "run atlas data lake test":
     - command: shell.exec
