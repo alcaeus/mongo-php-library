@@ -240,6 +240,15 @@ functions:
           SSL=${SSL} \
           TESTS=${TESTS} \
           bash ${PROJECT_DIRECTORY}/.evergreen/run-tests.sh
+    # Upload coverage
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |-
+          curl -Os https://cli.codecov.io/latest/linux/codecov
+          sudo chmod +x codecov
+          [[ -f coverage.xml ]] && ./codecov upload-process --disable-search --fail-on-error -t ${CODECOV_TOKEN} -n service-${build_variant}-${task_name} -F service -f coverage.xml
 
   "run atlas data lake test":
     - command: shell.exec
