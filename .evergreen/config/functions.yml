@@ -138,7 +138,8 @@ functions:
               --token ${CODECOV_TOKEN} \
               --name ${build_variant}-${task_name} \
               --flag "${MONGODB_VERSION}-${TOPOLOGY}" \
-              --file coverage.xml
+              --file coverage.xml || \
+              echo "Skipping codecov coverage upload due to error"  
           [[ -f test-results.xml ]] && \
             ./codecov upload-process \
               --report-type test_results \
@@ -147,7 +148,8 @@ functions:
               --token ${CODECOV_TOKEN} \
               --name service-${build_variant}-${task_name} \
               --flag "${MONGODB_VERSION}-${TOPOLOGY}" \
-              --file test-results.xml
+              --file test-results.xml || \
+              echo "Skipping codecov test result upload due to error"
     - command: attach.results
       params:
         file_location: "${DRIVERS_TOOLS}/results.json"
@@ -171,8 +173,9 @@ functions:
     - command: shell.exec
       params:
         script: |
-          echo "MONGODB_VERSION: '${MONGODB_VERSION}'\n" > mo-expansion.yml
-          echo "TOPOLOGY: '${TOPOLOGY}'\n" > mo-expansion.yml
+          echo "MONGODB_VERSION: '${MONGODB_VERSION}'\n" >> mo-expansion.yml
+          echo "TOPOLOGY: '${TOPOLOGY}'\n" >> mo-expansion.yml
+          cat mo-expansion.yml
     # run-orchestration generates expansion file with MONGODB_URI and CRYPT_SHARED_LIB_PATH
     - command: expansions.update
       params:
