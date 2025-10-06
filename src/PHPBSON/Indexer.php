@@ -182,7 +182,7 @@ class Indexer
                 $dataOffset = $newOffset;
                 // Data length includes 4 bytes for the string length and 12 bytes for an ObjectId
                 $dataLength = 4 + (int) $data['length'] + 12;
-                $newOffset += $dataLength + 12;
+                $newOffset += $dataLength;
                 break;
 
             case Type::CODEWITHSCOPE:
