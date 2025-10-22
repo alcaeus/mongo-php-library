@@ -24,7 +24,7 @@ use function json_decode;
 final class CorpusTest extends TestCase
 {
     static array $tests = [];
-    static array $skippedFiles = ['decimal128-1.json', 'decimal128-2.json', 'decimal128-3.json', 'decimal128-4.json', 'decimal128-5.json'];
+    static array $skippedFiles = [];//['decimal128-1.json', 'decimal128-2.json', 'decimal128-3.json', 'decimal128-4.json', 'decimal128-5.json'];
 
     /** @dataProvider provideValidTests */
     public function testCanonicalBsonToCanonicalExtendedJson(

@@ -5,6 +5,7 @@ namespace MongoDB\PHPBSON;
 use ArrayAccess;
 use Exception;
 use InvalidArgumentException;
+use MongoDB\BSON\Decimal128;
 use MongoDB\PHPBSON\Index\Index;
 use Stringable;
 
@@ -109,6 +110,11 @@ abstract class Structure implements ArrayAccess, Stringable, Type
 
     protected function formatValueForCanonicalExtendedJson(mixed $value): string
     {
+        // Special handling for Decimal128 while we still use it from the extension
+        if ($value instanceof Decimal128) {
+            return sprintf('{"$numberDecimal": "%s"}', addslashes($value->__toString()));
+        }
+
         if ($value instanceof Type) {
             return $value->toCanonicalExtendedJSON();
         }
@@ -125,7 +131,9 @@ abstract class Structure implements ArrayAccess, Stringable, Type
         if (is_float($value)) {
             // TODO: Formatting of float values
             return sprintf('{"$numberDouble": "%.13f"}', $value);
-        } if (is_bool($value)) {
+        }
+
+        if (is_bool($value)) {
             return $value ? 'true' : 'false';
         }
 
