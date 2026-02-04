@@ -362,11 +362,7 @@ final class Find implements Explainable
             }
         }
 
-        /*
-         * TODO: update PHPC to read batchSize from command document for find.
-         * As is, php_phongo_command_init() only reads cursor.batchSize, but the find command uses a different structure
-         */
-        foreach (['allowDiskUse', 'allowPartialResults', 'batchSize', 'comment', 'hint', 'limit', 'maxAwaitTimeMS', 'maxTimeMS', 'noCursorTimeout', 'projection', 'readConcern', 'returnKey', 'showRecordId', 'skip', 'sort'] as $option) {
+        foreach (['allowDiskUse', 'allowPartialResults', 'batchSize', 'comment', 'hint', 'limit', 'maxAwaitTimeMS', 'maxTimeMS', 'noCursorTimeout', 'projection', 'returnKey', 'showRecordId', 'skip', 'sort'] as $option) {
             if (isset($this->options[$option])) {
                 $options[$option] = $this->options[$option];
             }
