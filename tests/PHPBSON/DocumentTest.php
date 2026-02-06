@@ -5,19 +5,19 @@ namespace MongoDB\Tests\PHPBSON;
 use Generator;
 use InvalidArgumentException;
 use MongoDB\BSON\Binary;
-use MongoDB\BSON\DBPointer;
-use MongoDB\BSON\Int64;
-use MongoDB\BSON\Javascript;
-use MongoDB\BSON\MaxKey;
-use MongoDB\BSON\MinKey;
-use MongoDB\BSON\ObjectId;
-use MongoDB\BSON\Regex;
-use MongoDB\BSON\Symbol;
-use MongoDB\BSON\Timestamp;
-use MongoDB\BSON\Undefined;
-use MongoDB\BSON\UTCDateTime;
+use MongoDB\PHPBSON\DBPointer;
 use MongoDB\PHPBSON\Document;
+use MongoDB\PHPBSON\Int64;
+use MongoDB\PHPBSON\Javascript;
+use MongoDB\PHPBSON\MaxKey;
+use MongoDB\PHPBSON\MinKey;
+use MongoDB\PHPBSON\ObjectId;
 use MongoDB\PHPBSON\PackedArray;
+use MongoDB\PHPBSON\Regex;
+use MongoDB\PHPBSON\Symbol;
+use MongoDB\PHPBSON\Timestamp;
+use MongoDB\PHPBSON\Undefined;
+use MongoDB\PHPBSON\UTCDateTime;
 use MongoDB\Tests\TestCase;
 
 use function base64_decode;
@@ -136,13 +136,13 @@ class DocumentTest extends TestCase
         ];
 
         yield 'Undefined' => [
-            'expected' => new \MongoDB\PHPBSON\Undefined(),
+            'expected' => new Undefined(),
             // {"a" : {"$undefined" : true}}
             'bson' => hex2bin('0800000006610000'),
         ];
 
         yield 'ObjectId' => [
-            'expected' => new \MongoDB\PHPBSON\ObjectId('000000000000000000000000'),
+            'expected' => new ObjectId('000000000000000000000000'),
             // {"a" : {"$oid" : "000000000000000000000000"}}
             'bson' => hex2bin('1400000007610000000000000000000000000000'),
         ];
@@ -160,7 +160,7 @@ class DocumentTest extends TestCase
         ];
 
         yield 'UTCDateTime' => [
-            'expected' => new \MongoDB\PHPBSON\UTCDateTime(0),
+            'expected' => new UTCDateTime(0),
             // {"a" : {"$date" : {"$numberLong" : "0"}}}
             'bson' => hex2bin('10000000096100000000000000000000'),
         ];
@@ -172,31 +172,31 @@ class DocumentTest extends TestCase
         ];
 
         yield 'Regex' => [
-            'expected' => new \MongoDB\PHPBSON\Regex('abc', 'im'),
+            'expected' => new Regex('abc', 'im'),
             // {"a" : {"$regularExpression" : { "pattern": "abc", "options" : "im"}}}
             'bson' => hex2bin('0F0000000B610061626300696D0000'),
         ];
 
         yield 'DBPointer' => [
-            'expected' => new \MongoDB\PHPBSON\DBPointer('b', '56e1fc72e0c917e9c4714161'),
+            'expected' => new DBPointer('b', '56e1fc72e0c917e9c4714161'),
             // {"a": {"$dbPointer": {"$ref": "b", "$id": {"$oid": "56e1fc72e0c917e9c4714161"}}}}
             'bson' => hex2bin('1A0000000C610002000000620056E1FC72E0C917E9C471416100'),
         ];
 
         yield 'Code' => [
-            'expected' => new \MongoDB\PHPBSON\Javascript('abababababab'),
+            'expected' => new Javascript('abababababab'),
             // {"a" : {"$code" : "abababababab"}}
             'bson' => hex2bin('190000000D61000D0000006162616261626162616261620000'),
         ];
 
         yield 'Symbol' => [
-            'expected' => new \MongoDB\PHPBSON\Symbol('abababababab'),
+            'expected' => new Symbol('abababababab'),
             // {"a" : {"$symbol" : "abababababab"}}
             'bson' => hex2bin('190000000E61000D0000006162616261626162616261620000'),
         ];
 
         yield 'Code With Scope' => [
-            'expected' => new \MongoDB\PHPBSON\Javascript('abcd', Document::fromPHP(['x' => 1])),
+            'expected' => new Javascript('abcd', Document::fromPHP(['x' => 1])),
             // {"a" : {"$code" : "abcd", "$scope" : {"x" : {"$numberInt": "1"}}}}
             'bson' => hex2bin('210000000F6100190000000500000061626364000C000000107800010000000000'),
         ];
@@ -208,13 +208,13 @@ class DocumentTest extends TestCase
         ];
 
         yield 'Timestamp' => [
-            'expected' => new \MongoDB\PHPBSON\Timestamp(42, 123456789),
+            'expected' => new Timestamp(42, 123456789),
             // {"a" : {"$timestamp" : {"t" : 123456789, "i" : 42} } }
             'bson' => hex2bin('100000001161002A00000015CD5B0700'),
         ];
 
         yield 'Int64' => [
-            'expected' => new \MongoDB\PHPBSON\Int64('-9223372036854775808'),
+            'expected' => new Int64('-9223372036854775808'),
             // {"a" : {"$numberLong" : "-9223372036854775808"}}
             'bson' => hex2bin('10000000126100000000000000008000'),
         ];
@@ -227,13 +227,13 @@ class DocumentTest extends TestCase
 //        ];
 
         yield 'MinKey' => [
-            'expected' => new \MongoDB\PHPBSON\MinKey(),
+            'expected' => new MinKey(),
             // {"a" : {"$minKey" : 1}}
             'bson' => hex2bin('08000000FF610000'),
         ];
 
         yield 'MaxKey' => [
-            'expected' => new \MongoDB\PHPBSON\MaxKey(),
+            'expected' => new MaxKey(),
             // {"a" : {"$maxKey" : 1}}
             'bson' => hex2bin('080000007F610000'),
         ];

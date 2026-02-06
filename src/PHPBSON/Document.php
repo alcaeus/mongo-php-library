@@ -6,7 +6,7 @@ use Closure;
 use MongoDB\BSON\Document as BSONDocument;
 use MongoDB\PHPBSON\Index\DocumentIndex;
 use MongoDB\PHPBSON\Index\Field;
-use function addslashes;
+
 use function array_map;
 use function implode;
 use function json_encode;
@@ -14,18 +14,18 @@ use function sprintf;
 
 final class Document extends Structure
 {
-    static public function fromBSON(string $bson): Document
+    public static function fromBSON(string $bson): Document
     {
         return new self($bson);
     }
 
-    static public function fromJSON(string $json): Document
+    public static function fromJSON(string $json): Document
     {
         // TODO: Implement JSON parser
         return new self((string) BSONDocument::fromJSON($json));
     }
 
-    static public function fromPHP(array|object $value): Document
+    public static function fromPHP(array|object $value): Document
     {
         // TODO: Create from PHP
         return new self((string) BSONDocument::fromPHP($value));
@@ -63,7 +63,7 @@ final class Document extends Structure
             implode(
                 ', ',
                 array_map(
-                    fn(Field $field): string => sprintf(
+                    fn (Field $field): string => sprintf(
                         '%s : %s',
                         json_encode($field->key),
                         $formatter($field->getValue()),

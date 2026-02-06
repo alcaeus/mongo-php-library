@@ -2,14 +2,15 @@
 
 namespace MongoDB\PHPBSON;
 
-use function addslashes;
 use function json_encode;
+use function sprintf;
 
 class Symbol implements Type
 {
     public function __construct(
         public readonly string $symbol,
-    ) {}
+    ) {
+    }
 
     public function toCanonicalExtendedJSON(): string
     {

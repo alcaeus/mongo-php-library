@@ -2,9 +2,12 @@
 
 namespace MongoDB\PHPBSON;
 
+use Exception;
 use MongoDB\BSON\ObjectIdInterface;
 
 use function hex2bin;
+use function sprintf;
+use function strlen;
 
 final class ObjectId implements ObjectIdInterface, Type
 {
@@ -14,11 +17,11 @@ final class ObjectId implements ObjectIdInterface, Type
     {
         if ($id === null) {
             // TODO: Implement OID generation according to spec
-            throw new \Exception('Not implemented');
+            throw new Exception('Not implemented');
         }
 
         if (strlen($id) !== 24 || hex2bin($id) === false) {
-            throw new \Exception('Invalid ObjectId given');
+            throw new Exception('Invalid ObjectId given');
         }
 
         $this->id = $id;

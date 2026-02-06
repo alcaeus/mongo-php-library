@@ -3,14 +3,17 @@
 namespace MongoDB\PHPBSON;
 
 use MongoDB\BSON\JavascriptInterface;
-use function addslashes;
+
+use function json_encode;
+use function sprintf;
 
 class Javascript implements Type, JavascriptInterface
 {
     public function __construct(
         public readonly string $code,
         public readonly Document|null $scope = null,
-    ) {}
+    ) {
+    }
 
     public function getCode(): string
     {

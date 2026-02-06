@@ -7,22 +7,25 @@ use MongoDB\BSON\Document as BSONDocument;
 use MongoDB\BSON\PackedArray as BSONPackedArray;
 use MongoDB\PHPBSON\Index\Field;
 use MongoDB\PHPBSON\Index\PackedArrayIndex;
+
 use function array_map;
+use function implode;
+use function sprintf;
 
 final class PackedArray extends Structure
 {
-    static public function fromBSON(string $bson): PackedArray
+    public static function fromBSON(string $bson): PackedArray
     {
         return new self($bson);
     }
 
-    static public function fromJSON(string $json): PackedArray
+    public static function fromJSON(string $json): PackedArray
     {
         // TODO: Implement JSON parser
         return new self((string) BSONDocument::fromJSON($json));
     }
 
-    static public function fromPHP(array|object $value): PackedArray
+    public static function fromPHP(array|object $value): PackedArray
     {
         // TODO: Create from PHP
         return new self((string) BSONPackedArray::fromPHP($value));

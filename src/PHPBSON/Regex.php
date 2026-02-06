@@ -3,8 +3,10 @@
 namespace MongoDB\PHPBSON;
 
 use MongoDB\BSON\RegexInterface;
+
 use function addslashes;
 use function preg_quote;
+use function sprintf;
 
 final class Regex implements RegexInterface, Type
 {

@@ -5,6 +5,8 @@ namespace MongoDB\PHPBSON\Index;
 use MongoDB\PHPBSON\Structure;
 use OutOfBoundsException;
 
+use function array_map;
+
 abstract class Index
 {
     public readonly array $fields;
@@ -15,7 +17,7 @@ abstract class Index
         array $fields,
     ) {
         $this->fields = array_map(
-            fn(array $field): Field => new Field(
+            fn (array $field): Field => new Field(
                 $structure,
                 $field['key'],
                 $field['bsonType'],

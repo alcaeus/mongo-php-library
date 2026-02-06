@@ -10,7 +10,8 @@ final class DBPointer implements Type
         public string $ref,
         // TODO: Store ObjectId instance?
         public string $oid,
-    ) {}
+    ) {
+    }
 
     public function toCanonicalExtendedJSON(): string
     {

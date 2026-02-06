@@ -2,9 +2,13 @@
 
 namespace MongoDB\PHPBSON;
 
+use function sprintf;
+
 final class Int64 implements Type
 {
-    final public function __construct(public readonly string|int $value) {}
+    final public function __construct(public readonly string|int $value)
+    {
+    }
 
     public function toCanonicalExtendedJSON(): string
     {

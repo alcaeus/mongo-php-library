@@ -5,17 +5,17 @@ namespace MongoDB\PHPBSON;
 use ArrayAccess;
 use Exception;
 use InvalidArgumentException;
-use MongoDB\BSON\Decimal128;
 use MongoDB\PHPBSON\Index\Index;
 use Stringable;
 
-use function addslashes;
 use function base64_decode;
 use function base64_encode;
 use function get_debug_type;
 use function is_bool;
 use function is_float;
+use function is_infinite;
 use function is_int;
+use function is_nan;
 use function is_null;
 use function is_string;
 use function json_encode;
@@ -110,61 +110,49 @@ abstract class Structure implements ArrayAccess, Stringable, Type
 
     protected function formatValueForCanonicalExtendedJson(mixed $value): string
     {
-        // Special handling for Decimal128 while we still use it from the extension
-        if ($value instanceof Decimal128) {
-            return sprintf('{"$numberDecimal": "%s"}', addslashes($value->__toString()));
-        }
-
-        if ($value instanceof Type) {
-            return $value->toCanonicalExtendedJSON();
-        }
-
-        if (is_string($value)) {
-            return json_encode($value);
-        }
-
-        if (is_int($value)) {
+        return match (true) {
+            $value instanceof Type => $value->toCanonicalExtendedJSON(),
+            is_string($value) => json_encode($value),
             // TODO: Handle 64 bit values
-            return sprintf('{"$numberInt": "%d"}', $value);
-        }
-
-        if (is_float($value)) {
-            // TODO: Formatting of float values
-            return sprintf('{"$numberDouble": "%.13f"}', $value);
-        }
-
-        if (is_bool($value)) {
-            return $value ? 'true' : 'false';
-        }
-
-        if (is_null($value)) {
-            return 'null';
-        }
-
-        throw new Exception('Unsupported field type ' . get_debug_type($value));
+            is_int($value) => sprintf('{"$numberInt": "%d"}', $value),
+            is_float($value) => $this->formatFloat($value, true),
+            is_bool($value) => $value ? 'true' : 'false',
+            is_null($value) => 'null',
+            default => throw new Exception('Unsupported field type ' . get_debug_type($value)),
+        };
     }
 
     protected function formatValueForRelaxedExtendedJson(mixed $value): string
     {
-        if (is_int($value)) {
+        return match (true) {
+            is_float($value) => $this->formatFloat($value, false),
             // TODO: Handle 64 bit values
-            return sprintf('%d', $value);
-        }
-
-        if (is_float($value)) {
-            // TODO: Formatting of float values
-            return sprintf('%.13f', $value);
-        }
-
-        if ($value instanceof Type) {
-            return $value->toRelaxedExtendedJSON();
-        }
-
-        return $this->formatValueForCanonicalExtendedJson($value);
+            is_int($value) => sprintf('%d', $value),
+            $value instanceof Type => $value->toRelaxedExtendedJSON(),
+            default => $this->formatValueForCanonicalExtendedJson($value),
+        };
     }
 
     protected function getIndex(): Index
     {
         return $this->index ??= $this->createIndex();
+    }
+
+    private function formatFloat(float $value, bool $forceExtended): string
+    {
+        if (is_nan($value)) {
+            $value = 'NaN';
+            $forceExtended = true;
+        } elseif (is_infinite($value)) {
+            $value = ($value < 0 ? '-' : '') . 'Infinity';
+            $forceExtended = true;
+        } else {
+            // TODO: Formatting of float values
+            $value = sprintf('%.13f', $value);
+        }
+
+        return $forceExtended ?
+            sprintf('{"$numberDouble": "%s"}', $value) :
+            $value;
     }
 }

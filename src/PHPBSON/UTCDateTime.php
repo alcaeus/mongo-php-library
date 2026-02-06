@@ -7,8 +7,11 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use MongoDB\BSON\UTCDateTimeInterface;
 use MongoDB\Exception\InvalidArgumentException;
-use function date_format;
+
+use function is_string;
 use function json_encode;
+use function sprintf;
+use function substr;
 
 final class UTCDateTime implements UTCDateTimeInterface, Type
 {
@@ -31,12 +34,14 @@ final class UTCDateTime implements UTCDateTimeInterface, Type
         if ($milliseconds instanceof DateTimeInterface) {
             $this->dateTime = DateTimeImmutable::createFromInterface($milliseconds);
             $this->milliseconds = (int) $milliseconds->format('Uv');
+
             return;
         }
 
         if (is_string($milliseconds)) {
             // TODO: 64-bit handling
             $this->milliseconds = (int) $milliseconds;
+
             return;
         }
 

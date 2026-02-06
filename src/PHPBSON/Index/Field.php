@@ -22,6 +22,7 @@ use MongoDB\PHPBSON\Undefined;
 use MongoDB\PHPBSON\UTCDateTime;
 use OutOfBoundsException;
 use WeakReference;
+
 use function bin2hex;
 use function strlen;
 use function substr;
@@ -42,10 +43,12 @@ final class Field
         public readonly int|null $dataOffset = null,
         public readonly int|null $dataLength = null,
     ) {
-        if ($this->bsonType === Type::UNDEFINED
+        if (
+            $this->bsonType === Type::UNDEFINED
             || $this->bsonType === Type::NULL
             || $this->bsonType === Type::MINKEY
-            || $this->bsonType === Type::MAXKEY) {
+            || $this->bsonType === Type::MAXKEY
+        ) {
             if ($this->dataLength !== 0 || $this->dataOffset !== null) {
                 throw new InvalidArgumentException('Invalid data offset or length');
             }

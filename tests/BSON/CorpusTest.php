@@ -3,9 +3,10 @@
 namespace MongoDB\Tests\BSON;
 
 use Generator;
-use MongoDB\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use MongoDB\PHPBSON\Document;
 use MongoDB\Tests\TestCase;
+
 use function array_column;
 use function array_combine;
 use function array_filter;
@@ -20,11 +21,15 @@ use function glob;
 use function hex2bin;
 use function in_array;
 use function json_decode;
+use function json_encode;
+use function preg_replace_callback;
+
+use const JSON_THROW_ON_ERROR;
 
 final class CorpusTest extends TestCase
 {
     static array $tests = [];
-    static array $skippedFiles = [];//['decimal128-1.json', 'decimal128-2.json', 'decimal128-3.json', 'decimal128-4.json', 'decimal128-5.json'];
+    static array $skippedFiles = [];
 
     /** @dataProvider provideValidTests */
     public function testCanonicalBsonToCanonicalExtendedJson(
@@ -66,9 +71,7 @@ final class CorpusTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider provideDegenerateBsonTests
-     */
+    /** @dataProvider provideDegenerateBsonTests */
     public function testDegenerateBson(
         string $canonicalBson,
         string $canonical_extjson,
@@ -120,14 +123,14 @@ final class CorpusTest extends TestCase
     {
         return array_filter(
             self::provideValidTests(),
-            fn (array $test): bool => ($test['relaxed_extjson'] ?? '') !== ''
+            fn (array $test): bool => ($test['relaxed_extjson'] ?? '') !== '',
         );
     }
 
     /** @dataProvider provideDecodeErrorTests */
     public function testDecodeErrors(string $bson): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         Document::fromBSON($bson);
     }
 
@@ -185,13 +188,10 @@ final class CorpusTest extends TestCase
          * BSON corpus tests. */
         $json = preg_replace_callback(
             '/{"\$numberDouble":"(-?\d+(\.\d+([eE]\+\d+)?)?)"}/',
-            function ($matches) {
-                return '{"$numberDouble":"' . json_encode(json_decode($matches[1])) . '"}';
-            },
-            $json
+            fn ($matches) => '{"$numberDouble":"' . json_encode(json_decode($matches[1])) . '"}',
+            $json,
         );
 
         return $json;
     }
-
 }

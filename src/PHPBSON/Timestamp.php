@@ -3,6 +3,7 @@
 namespace MongoDB\PHPBSON;
 
 use MongoDB\BSON\TimestampInterface;
+
 use function sprintf;
 
 final class Timestamp implements TimestampInterface, Type
@@ -10,7 +11,8 @@ final class Timestamp implements TimestampInterface, Type
     final public function __construct(
         public readonly int $increment,
         public readonly int $timestamp,
-    ) {}
+    ) {
+    }
 
     public function getIncrement(): int
     {
