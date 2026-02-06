@@ -6,6 +6,7 @@ use Generator;
 use InvalidArgumentException;
 use MongoDB\PHPBSON\Binary;
 use MongoDB\PHPBSON\DBPointer;
+use MongoDB\PHPBSON\Decimal128;
 use MongoDB\PHPBSON\Document;
 use MongoDB\PHPBSON\Int64;
 use MongoDB\PHPBSON\Javascript;
@@ -219,12 +220,11 @@ class PackedArrayTest extends TestCase
             'bson' => hex2bin('10000000123000000000000000008000'),
         ];
 
-        // TODO: Not implemented
-//        yield 'Decimal128' => [
-//            'expected' => new Decimal128('0.000001234567890123456789012345678901234'),
-//            // [{ "$numberDecimal": "0.000001234567890123456789012345678901234" }]
-//            'bson' => hex2bin('18000000133000F2AF967ED05C82DE3297FF6FDE3CF22F00'),
-//        ];
+        yield 'Decimal128' => [
+            'expected' => new Decimal128('0.000001234567890123456789012345678901234'),
+            // [{ "$numberDecimal": "0.000001234567890123456789012345678901234" }]
+            'bson' => hex2bin('18000000133000F2AF967ED05C82DE3297FF6FDE3CF22F00'),
+        ];
 
         yield 'MinKey' => [
             'expected' => new MinKey(),
