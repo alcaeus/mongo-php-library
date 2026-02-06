@@ -15,11 +15,9 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function basename;
-use function bin2hex;
 use function file_get_contents;
 use function glob;
 use function hex2bin;
-use function in_array;
 use function json_decode;
 use function json_encode;
 use function preg_replace_callback;
@@ -29,7 +27,16 @@ use const JSON_THROW_ON_ERROR;
 final class CorpusTest extends TestCase
 {
     static array $tests = [];
-    static array $skippedFiles = [];
+    static array $skippedTests = ['Double type (double.json)/-0.0' => 'PHP cannot represent negative zero'];
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        if (isset(self::$skippedTests[$this->dataDescription()])) {
+            $this->markTestIncomplete(self::$skippedTests[$this->dataDescription()]);
+        }
+    }
 
     /** @dataProvider provideValidTests */
     public function testCanonicalBsonToCanonicalExtendedJson(
@@ -84,11 +91,10 @@ final class CorpusTest extends TestCase
     ): void {
         $document = Document::fromBSON(hex2bin($degenerate_bson));
 
-        // TODO: we have no intermediate representation, so degenerate BSON will
-        // end up being degenerate after creating a Document instance
+        // We have no intermediate representation, so degenerates can only be compared to their canonical extended JSON output
         self::assertSame(
-            $canonicalBson,
-            bin2hex((string) $document),
+            $this->canonicalizeJson($canonical_extjson),
+            $this->canonicalizeJson($document->toCanonicalExtendedJSON()),
         );
     }
 
@@ -152,9 +158,6 @@ final class CorpusTest extends TestCase
 
         foreach (glob($pattern) as $filename) {
             $basename = basename($filename);
-            if (in_array($basename, self::$skippedFiles)) {
-                continue;
-            }
 
             $fileTests = self::readTestFile($filename);
             $group = $fileTests['description'] . ' (' . $basename . ')';
