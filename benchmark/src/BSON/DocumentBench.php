@@ -30,7 +30,6 @@ final class DocumentBench
         self::$phpDocument = PHPDocument::fromBSON((string) self::$document);
     }
 
-    #[ParamProviders('provideParams')]
     public static function provideParams(): Generator
     {
         yield 'Extension' => ['key' => 'bson'];
@@ -38,12 +37,14 @@ final class DocumentBench
     }
 
     #[ParamProviders('provideParams')]
+    #[Revs(500)]
     public function benchCheckFirst(array $params): void
     {
         self::getDocument($params['key'])->has('qx3MigjubFSm');
     }
 
     #[ParamProviders('provideParams')]
+    #[Revs(500)]
     public function benchCheckFirstMultipleTimes(array $params): void
     {
         self::getDocument($params['key'])->has('qx3MigjubFSm');
@@ -52,12 +53,14 @@ final class DocumentBench
     }
 
     #[ParamProviders('provideParams')]
+    #[Revs(500)]
     public function benchCheckLast(array $params): void
     {
         self::getDocument($params['key'])->has('Zz2MOlCxDhLl');
     }
 
     #[ParamProviders('provideParams')]
+    #[Revs(500)]
     public function benchCheckLastMultipleTimes(array $params): void
     {
         self::getDocument($params['key'])->has('Zz2MOlCxDhLl');
@@ -66,12 +69,14 @@ final class DocumentBench
     }
 
     #[ParamProviders('provideParams')]
+    #[Revs(500)]
     public function benchAccessFirst(array $params): void
     {
         self::getDocument($params['key'])->get('qx3MigjubFSm');
     }
 
     #[ParamProviders('provideParams')]
+    #[Revs(500)]
     public function benchAccessFirstMultipleTimes(array $params): void
     {
         self::getDocument($params['key'])->get('qx3MigjubFSm');
@@ -80,12 +85,14 @@ final class DocumentBench
     }
 
     #[ParamProviders('provideParams')]
+    #[Revs(500)]
     public function benchAccessLast(array $params): void
     {
         self::getDocument($params['key'])->get('Zz2MOlCxDhLl');
     }
 
     #[ParamProviders('provideParams')]
+    #[Revs(500)]
     public function benchAccessLastMultipleTimes(array $params): void
     {
         self::getDocument($params['key'])->get('Zz2MOlCxDhLl');
