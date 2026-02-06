@@ -41,6 +41,14 @@ abstract class Structure implements ArrayAccess, Stringable, Type
         return $this->bson;
     }
 
+    public function __debugInfo(): array
+    {
+        return [
+            'data' => base64_encode($this->bson),
+            'value' => $this->toCanonicalExtendedJSON(),
+        ];
+    }
+
     public function __serialize(): array
     {
         return ['data' => base64_encode($this->bson)];
