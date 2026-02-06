@@ -4,7 +4,7 @@ namespace MongoDB\Tests\PHPBSON;
 
 use Generator;
 use InvalidArgumentException;
-use MongoDB\BSON\Binary;
+use MongoDB\PHPBSON\Binary;
 use MongoDB\PHPBSON\DBPointer;
 use MongoDB\PHPBSON\Document;
 use MongoDB\PHPBSON\Int64;
@@ -130,7 +130,7 @@ class DocumentTest extends TestCase
         ];
 
         yield 'Binary (Sub-type 0)' => [
-            'expected' => new \MongoDB\PHPBSON\Binary(base64_decode('//8='), Binary::TYPE_GENERIC),
+            'expected' => new Binary(base64_decode('//8='), Binary::TYPE_GENERIC),
             // {"a" : { "$binary" : {"base64" : "//8=", "subType" : "00"}}}
             'bson' => hex2bin('0F0000000561000200000000FFFF00'),
         ];

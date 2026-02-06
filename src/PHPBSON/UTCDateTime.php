@@ -23,7 +23,7 @@ final class UTCDateTime implements UTCDateTimeInterface, Type
      * The timestamp in milliseconds of 9999-12-31T23:59:59Z, aka the latest
      * date represented as ISO-8601 in relaxed extended JSON.
      */
-    private const DEC_31st_9999 = 253_402_300_799_999;
+    private const DEC_31ST_9999 = 253_402_300_799_999;
 
     final public function __construct(int|string|float|DateTimeInterface|null $milliseconds = null)
     {
@@ -71,7 +71,7 @@ final class UTCDateTime implements UTCDateTimeInterface, Type
 
     public function toRelaxedExtendedJSON(): string
     {
-        if ($this->milliseconds < 0 || $this->milliseconds > self::DEC_31st_9999) {
+        if ($this->milliseconds < 0 || $this->milliseconds > self::DEC_31ST_9999) {
             return $this->toCanonicalExtendedJSON();
         }
 

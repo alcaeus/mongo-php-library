@@ -16,7 +16,6 @@ use function is_float;
 use function is_infinite;
 use function is_int;
 use function is_nan;
-use function is_null;
 use function is_string;
 use function json_encode;
 use function sprintf;
@@ -125,7 +124,7 @@ abstract class Structure implements ArrayAccess, Stringable, Type
             is_int($value) => sprintf('{"$numberInt": "%d"}', $value),
             is_float($value) => $this->formatFloat($value, true),
             is_bool($value) => $value ? 'true' : 'false',
-            is_null($value) => 'null',
+            $value === null => 'null',
             default => throw new Exception('Unsupported field type ' . get_debug_type($value)),
         };
     }

@@ -26,8 +26,8 @@ use const JSON_THROW_ON_ERROR;
 
 final class CorpusTest extends TestCase
 {
-    static array $tests = [];
-    static array $skippedTests = ['Double type (double.json)/-0.0' => 'PHP cannot represent negative zero'];
+    private static array $tests = [];
+    private static array $skippedTests = ['Double type (double.json)/-0.0' => 'PHP cannot represent negative zero'];
 
     public function setUp(): void
     {
@@ -42,11 +42,11 @@ final class CorpusTest extends TestCase
     public function testCanonicalBsonToCanonicalExtendedJson(
         string $canonicalBson,
         string $canonicalExtJson,
-        string $relaxed_extjson,
-        string $degenerate_bson,
-        string $degenerate_extjson,
-        string $converted_bson,
-        string $converted_extjson,
+        string $relaxedExtJson,
+        string $degenerateBson,
+        string $degenerateExtJson,
+        string $convertedBson,
+        string $convertedExtJson,
         bool $lossy,
     ): void {
         $document = Document::fromBSON(hex2bin($canonicalBson));
@@ -62,18 +62,18 @@ final class CorpusTest extends TestCase
     public function testCanonicalBsonToRelaxedExtendedJson(
         string $canonicalBson,
         string $canonicalExtJson,
-        string $relaxed_extjson,
-        string $degenerate_bson,
-        string $degenerate_extjson,
-        string $converted_bson,
-        string $converted_extjson,
+        string $relaxedExtJson,
+        string $degenerateBson,
+        string $degenerateExtJson,
+        string $convertedBson,
+        string $convertedExtjson,
         bool $lossy,
     ): void {
         $document = Document::fromBSON(hex2bin($canonicalBson));
         self::assertSame(hex2bin($canonicalBson), (string) $document);
 
         self::assertSame(
-            $this->canonicalizeJson($relaxed_extjson),
+            $this->canonicalizeJson($relaxedExtJson),
             $this->canonicalizeJson($document->toRelaxedExtendedJSON()),
         );
     }
@@ -81,19 +81,18 @@ final class CorpusTest extends TestCase
     /** @dataProvider provideDegenerateBsonTests */
     public function testDegenerateBson(
         string $canonicalBson,
-        string $canonical_extjson,
-        string $relaxed_extjson,
-        string $degenerate_bson,
-        string $degenerate_extjson,
-        string $converted_bson,
-        string $converted_extjson,
+        string $canonicalExtJson,
+        string $relaxedExtJson,
+        string $degenerateBson,
+        string $degenerateExtJson,
+        string $convertedBson,
+        string $convertedExtJson,
         bool $lossy,
     ): void {
-        $document = Document::fromBSON(hex2bin($degenerate_bson));
+        $document = Document::fromBSON(hex2bin($degenerateBson));
 
-        // We have no intermediate representation, so degenerates can only be compared to their canonical extended JSON output
         self::assertSame(
-            $this->canonicalizeJson($canonical_extjson),
+            $this->canonicalizeJson($canonicalExtJson),
             $this->canonicalizeJson($document->toCanonicalExtendedJSON()),
         );
     }
