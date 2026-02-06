@@ -3,9 +3,9 @@
 namespace MongoDB\PHPBSON\Index;
 
 use InvalidArgumentException;
-use MongoDB\BSON\Decimal128;
 use MongoDB\PHPBSON\Binary;
 use MongoDB\PHPBSON\DBPointer;
+use MongoDB\PHPBSON\Decimal128;
 use MongoDB\PHPBSON\Document;
 use MongoDB\PHPBSON\Int64;
 use MongoDB\PHPBSON\Javascript;
@@ -194,9 +194,8 @@ final class Field
                 break;
 
             case Type::DECIMAL128:
-                // TODO: 128 bit decimal
-                $this->value = new Decimal128('0');
-//                $this->value = new Decimal128(substr($bson, $this->dataOffset, $this->dataLength));
+                // Create Decimal128 from 16-byte little-endian binary slice
+                $this->value = new Decimal128(substr($bson, $this->dataOffset, $this->dataLength));
                 break;
 
             default:
