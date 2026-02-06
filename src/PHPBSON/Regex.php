@@ -44,7 +44,7 @@ final class Regex implements RegexInterface, Type
 
     public function toRelaxedExtendedJSON(): string
     {
-        // TODO: Implement toRelaxedExtendedJSON() method.
+        return $this->toCanonicalExtendedJSON();
     }
 
     private function sortFlags(string $flags): string

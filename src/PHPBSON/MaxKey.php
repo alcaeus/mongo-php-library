@@ -11,6 +11,6 @@ final class MaxKey implements Type
 
     public function toRelaxedExtendedJSON(): string
     {
-        // TODO: Implement toRelaxedExtendedJSON() method.
+        return $this->toCanonicalExtendedJSON();
     }
 }

@@ -51,6 +51,6 @@ final class Binary implements BinaryInterface, Type
 
     public function toRelaxedExtendedJSON(): string
     {
-        // TODO: Implement toRelaxedExtendedJSON() method.
+        return $this->toCanonicalExtendedJSON();
     }
 }

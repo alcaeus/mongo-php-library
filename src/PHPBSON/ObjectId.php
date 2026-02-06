@@ -44,6 +44,6 @@ final class ObjectId implements ObjectIdInterface, Type
 
     public function toRelaxedExtendedJSON(): string
     {
-        // TODO: Implement toRelaxedExtendedJSON() method.
+        return $this->toCanonicalExtendedJSON();
     }
 }
