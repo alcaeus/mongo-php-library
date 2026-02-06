@@ -79,7 +79,7 @@ final class CorpusTest extends TestCase
     }
 
     /** @dataProvider provideDegenerateBsonTests */
-    public function testDegenerateBson(
+    public function testDegenerateBsonToCanonicalExtendedJson(
         string $canonicalBson,
         string $canonicalExtJson,
         string $relaxedExtJson,
@@ -95,6 +95,26 @@ final class CorpusTest extends TestCase
             $this->canonicalizeJson($canonicalExtJson),
             $this->canonicalizeJson($document->toCanonicalExtendedJSON()),
         );
+    }
+
+    public function testCanonicalExtendedJsonToCanonicalBson(): void
+    {
+        $this->markTestIncomplete('Not implemented');
+    }
+
+    public function testDegenerateExtendedJsonToCanonicalBson(): void
+    {
+        $this->markTestIncomplete('Not implemented');
+    }
+
+    public function testRelaxedExtendedJsonRoundTripping(): void
+    {
+        $this->markTestIncomplete('Not implemented');
+    }
+
+    public function testParseErrors(): void
+    {
+        $this->markTestIncomplete('Not implemented');
     }
 
     public static function provideDegenerateBsonTests(): array
@@ -148,8 +168,6 @@ final class CorpusTest extends TestCase
             self::provideTests(__DIR__ . '/bson-corpus/*.json', 'decodeErrors'),
         );
     }
-
-    // TODO: Parse errors (needs JSON parser)
 
     private static function provideTests(string $pattern, string $key): array
     {
