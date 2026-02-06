@@ -5,15 +5,21 @@ namespace MongoDB\PHPBSON;
 use MongoDB\BSON\RegexInterface;
 
 use function addslashes;
+use function implode;
 use function preg_quote;
+use function sort;
 use function sprintf;
+use function str_split;
 
 final class Regex implements RegexInterface, Type
 {
+    public readonly string $flags;
+
     final public function __construct(
         public readonly string $pattern,
-        public readonly string $flags = '',
+        string $flags = '',
     ) {
+        $this->flags = $this->sortFlags($flags);
     }
 
     public function getFlags(): string
@@ -39,5 +45,13 @@ final class Regex implements RegexInterface, Type
     public function toRelaxedExtendedJSON(): string
     {
         // TODO: Implement toRelaxedExtendedJSON() method.
+    }
+
+    private function sortFlags(string $flags): string
+    {
+        $flagArray = str_split($flags);
+        sort($flagArray);
+
+        return implode('', $flagArray);
     }
 }
