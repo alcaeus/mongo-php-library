@@ -23,6 +23,7 @@ use MongoDB\Tests\TestCase;
 
 use function base64_decode;
 use function hex2bin;
+use function iterator_to_array;
 use function pack;
 
 class DocumentTest extends TestCase
@@ -237,5 +238,14 @@ class DocumentTest extends TestCase
             // {"a" : {"$maxKey" : 1}}
             'bson' => hex2bin('080000007F610000'),
         ];
+    }
+
+    public function testIterator(): void
+    {
+        $document = Document::fromPHP(['c' => 'foo', 'b' => 'bar', 'a' => 'baz']);
+        self::assertSame(
+            ['c' => 'foo', 'b' => 'bar', 'a' => 'baz'],
+            iterator_to_array($document),
+        );
     }
 }

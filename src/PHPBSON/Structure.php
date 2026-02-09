@@ -4,7 +4,9 @@ namespace MongoDB\PHPBSON;
 
 use ArrayAccess;
 use Exception;
+use Generator;
 use InvalidArgumentException;
+use IteratorAggregate;
 use MongoDB\PHPBSON\Index\Index;
 use Stringable;
 
@@ -24,7 +26,7 @@ use function substr;
 use function unpack;
 
 /** @internal */
-abstract class Structure implements ArrayAccess, Stringable, Type
+abstract class Structure implements ArrayAccess, Stringable, Type, IteratorAggregate
 {
     protected Index|null $index = null;
 
@@ -60,9 +62,11 @@ abstract class Structure implements ArrayAccess, Stringable, Type
         $this->bson = $bson;
     }
 
-    public function getIterator(): Iterator
+    public function getIterator(): Generator
     {
-        throw new Exception('Not implemented');
+        foreach ($this->getIndex()->fields as $field) {
+            yield $field->key => $field->getValue();
+        }
     }
 
     public function toPHP(?array $typeMap = null): array|object

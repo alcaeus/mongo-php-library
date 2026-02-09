@@ -9,6 +9,7 @@ use function array_map;
 
 abstract class Index
 {
+    /** @var array<string|int, Field> */
     public readonly array $fields;
 
     public function __construct(
