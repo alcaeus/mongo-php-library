@@ -6,6 +6,7 @@ use Generator;
 use InvalidArgumentException;
 use MongoDB\PHPBSON\Document;
 use MongoDB\Tests\TestCase;
+use Throwable;
 
 use function array_column;
 use function array_combine;
@@ -18,9 +19,11 @@ use function basename;
 use function file_get_contents;
 use function glob;
 use function hex2bin;
+use function in_array;
 use function json_decode;
 use function json_encode;
 use function preg_replace_callback;
+use function str_contains;
 
 use const JSON_THROW_ON_ERROR;
 
@@ -97,24 +100,83 @@ final class CorpusTest extends TestCase
         );
     }
 
-    public function testCanonicalExtendedJsonToCanonicalBson(): void
-    {
-        $this->markTestIncomplete('Not implemented');
+    /** @dataProvider provideValidTests */
+    public function testCanonicalExtendedJsonToCanonicalBson(
+        string $canonicalBson,
+        string $canonicalExtJson,
+        string $relaxedExtJson,
+        string $degenerateBson,
+        string $degenerateExtJson,
+        string $convertedBson,
+        string $convertedExtJson,
+        bool $lossy,
+    ): void {
+        if ($lossy) {
+            $this->markTestSkipped('Lossy conversion cannot round-trip through extended JSON');
+        }
+
+        if (str_contains($canonicalExtJson, '\u0000')) {
+            $this->markTestSkipped('Extension fromJSON uses C strings and truncates at embedded null bytes');
+        }
+
+        $document = Document::fromJSON($canonicalExtJson);
+        self::assertSame(hex2bin($canonicalBson), (string) $document);
     }
 
-    public function testDegenerateExtendedJsonToCanonicalBson(): void
-    {
-        $this->markTestIncomplete('Not implemented');
+    /** @dataProvider provideValidTestsWithDegenerateExtJson */
+    public function testDegenerateExtendedJsonToCanonicalBson(
+        string $canonicalBson,
+        string $canonicalExtJson,
+        string $relaxedExtJson,
+        string $degenerateBson,
+        string $degenerateExtJson,
+        string $convertedBson,
+        string $convertedExtJson,
+        bool $lossy,
+    ): void {
+        if ($lossy) {
+            $this->markTestSkipped('Lossy conversion cannot round-trip through extended JSON');
+        }
+
+        $document = Document::fromJSON($degenerateExtJson);
+        self::assertSame(hex2bin($canonicalBson), (string) $document);
     }
 
-    public function testRelaxedExtendedJsonRoundTripping(): void
-    {
-        $this->markTestIncomplete('Not implemented');
+    /** @dataProvider provideValidTestsWithRelaxedExtendedJson */
+    public function testRelaxedExtendedJsonRoundTripping(
+        string $canonicalBson,
+        string $canonicalExtJson,
+        string $relaxedExtJson,
+        string $degenerateBson,
+        string $degenerateExtJson,
+        string $convertedBson,
+        string $convertedExtJson,
+        bool $lossy,
+    ): void {
+        $document = Document::fromJSON($relaxedExtJson);
+
+        self::assertSame(
+            $this->canonicalizeJson($relaxedExtJson),
+            $this->canonicalizeJson($document->toRelaxedExtendedJSON()),
+        );
     }
 
-    public function testParseErrors(): void
+    /** @dataProvider provideParseErrorTests */
+    public function testParseErrors(string $bsonType, string $string): void
     {
-        $this->markTestIncomplete('Not implemented');
+        if ($bsonType === '0x13') {
+            $this->markTestSkipped('Decimal128 string validation is not yet implemented');
+        }
+
+        // The extension's fromJSON permissively accepts numeric $date values; a native
+        // parser must reject them per the Extended JSON v2 spec.
+        $permissiveDateCases = ['Top-level document validity (top.json)/Bad $date (number, not string or hash)'];
+        if (in_array($this->dataDescription(), $permissiveDateCases, true)) {
+            $this->markTestSkipped('Extension fromJSON accepts numeric $date values contrary to Extended JSON v2 spec');
+        }
+
+        $this->expectException(Throwable::class);
+        Document::fromJSON($string);
     }
 
     public static function provideDegenerateBsonTests(): array
@@ -123,6 +185,34 @@ final class CorpusTest extends TestCase
             self::provideValidTests(),
             fn (array $test): bool => $test['degenerate_bson'] !== '',
         );
+    }
+
+    public static function provideValidTestsWithDegenerateExtJson(): array
+    {
+        return array_filter(
+            self::provideValidTests(),
+            fn (array $test): bool => $test['degenerate_extjson'] !== '',
+        );
+    }
+
+    public static function provideParseErrorTests(): array
+    {
+        $tests = [];
+
+        foreach (glob(__DIR__ . '/../specifications/source/bson-corpus/tests/*.json') as $filename) {
+            $basename = basename($filename);
+            $fileTests = self::readTestFile($filename);
+            $group = $fileTests['description'] . ' (' . $basename . ')';
+
+            foreach ($fileTests['parseErrors'] ?? [] as $test) {
+                $tests[$group . '/' . $test['description']] = [
+                    'bsonType' => $fileTests['bson_type'],
+                    'string'   => $test['string'],
+                ];
+            }
+        }
+
+        return $tests;
     }
 
     public static function provideValidTests(): array
