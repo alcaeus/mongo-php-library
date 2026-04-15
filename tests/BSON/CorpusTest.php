@@ -140,7 +140,7 @@ final class CorpusTest extends TestCase
 
         return array_map(
             fn (array $test) => array_intersect_key(array_merge($emptyTest, $test), $emptyTest),
-            self::provideTests(__DIR__ . '/bson-corpus/*.json', 'valid'),
+            self::provideTests('valid'),
         );
     }
 
@@ -165,15 +165,15 @@ final class CorpusTest extends TestCase
 
         yield from array_map(
             fn (array $test) => array_intersect_key(array_merge($emptyTest, $test), $emptyTest),
-            self::provideTests(__DIR__ . '/bson-corpus/*.json', 'decodeErrors'),
+            self::provideTests('decodeErrors'),
         );
     }
 
-    private static function provideTests(string $pattern, string $key): array
+    private static function provideTests(string $key): array
     {
         $tests = [];
 
-        foreach (glob($pattern) as $filename) {
+        foreach (glob(__DIR__ . '/../specifications/source/bson-corpus/tests/*.json') as $filename) {
             $basename = basename($filename);
 
             $fileTests = self::readTestFile($filename);
